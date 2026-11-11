@@ -573,7 +573,7 @@ function Footer() {
         <div className="space-y-2 text-sm"><p className="font-semibold">Legal</p><Link to="/privacy" className="block text-bone/70 hover:text-bone">Privacy</Link><Link to="/terms" className="block text-bone/70 hover:text-bone">Terms</Link></div>
         <div className="space-y-2 text-sm"><p className="font-semibold">Contact</p><a href={waLink(BRAND.supportWhatsApp)} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-bone/70 hover:text-bone"><WhatsAppIcon size={15} />WhatsApp</a><a href={`mailto:${BRAND.email}`} className="block text-bone/70 hover:text-bone">{BRAND.email}</a></div>
       </div>
-      <p className="mx-auto mt-10 max-w-7xl text-xs leading-relaxed text-bone/45">© {new Date().getFullYear()} {BRAND.name}. Template photos from Unsplash by Timothy K, Henrik Hansen and imsogabriel stock. Uicons by Flaticon. Clash Display and Satoshi by Indian Type Foundry.</p>
+      <p className="mx-auto mt-10 max-w-7xl text-xs leading-relaxed text-bone/45">© {new Date().getFullYear()} {BRAND.name}.</p>
     </footer>
   );
 }
