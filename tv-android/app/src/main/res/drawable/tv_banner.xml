@@ -2,7 +2,7 @@
 <!-- 320x180 launcher banner. Replace with assets/tv-banner-320x180.png in res/drawable-xhdpi/ when the final logo is ready. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="320dp" android:height="180dp" android:viewportWidth="320" android:viewportHeight="180">
-    <path android:fillColor="#0C1F16" android:pathData="M0,0h320v180h-320z" />
+    <path android:fillColor="#17182A" android:pathData="M0,0h320v180h-320z" />
     <path android:fillColor="#C0FFA5" android:pathData="M40,58h80a10,10 0,0 1,10 10v44a10,10 0,0 1,-10 10h-80a10,10 0,0 1,-10 -10v-44a10,10 0,0 1,10 -10z" />
     <path android:strokeColor="#C0FFA5" android:strokeWidth="6" android:strokeLineCap="round" android:pathData="M64,138h32" />
     <path android:strokeColor="#004227" android:strokeWidth="6" android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M66,76v28M66,90l14,-10M66,90l14,10" />

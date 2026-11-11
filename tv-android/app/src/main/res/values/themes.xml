@@ -4,9 +4,9 @@
         <item name="android:windowBackground">@color/karibu_bg</item>
         <item name="android:colorAccent">@color/karibu_mint</item>
     </style>
-    <color name="karibu_bg">#0C1F16</color>
-    <color name="karibu_panel">#10291D</color>
-    <color name="karibu_mint">#C0FFA5</color>
-    <color name="karibu_text">#F2FFF0</color>
-    <color name="karibu_muted">#A9BFB2</color>
+    <color name="karibu_bg">#17182A</color>
+    <color name="karibu_panel">#3A1323</color>
+    <color name="karibu_mint">#F3B0BD</color>
+    <color name="karibu_text">#F6F5F9</color>
+    <color name="karibu_muted">#B9B9C9</color>
 </resources>
