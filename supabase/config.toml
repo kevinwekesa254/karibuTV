@@ -7,7 +7,7 @@ schemas = ["public", "graphql_public"]
 
 [auth]
 site_url = "http://localhost:5173"
-additional_redirect_urls = ["http://localhost:5173/reset", "https://karibu.tv/reset"]
+additional_redirect_urls = ["http://localhost:5173/reset", "https://tv.mrserengeti.com/reset", "http://localhost:5174/set-password", "https://admintv.mrserengeti.com/set-password"]
 enable_signup = true
 
 [auth.email]

@@ -11,7 +11,7 @@ import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 import { admin, cors, json } from "../_shared/supabase.ts";
 
 const HOST_APP = Deno.env.get("HOST_APP_URL") || "https://tv.mrserengeti.com";
-const ADMIN_APP = Deno.env.get("ADMIN_APP_URL") || "https://admin.mrserengeti.com";
+const ADMIN_APP = Deno.env.get("ADMIN_APP_URL") || "https://admintv.mrserengeti.com";
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const ROLES = ["owner", "support", "sales", "ops"];
 
