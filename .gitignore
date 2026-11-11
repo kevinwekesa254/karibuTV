@@ -17,3 +17,5 @@ tv-android/local.properties
 tv-android/.idea/
 *.apk
 *.keystore
+.vercel
+.env*
