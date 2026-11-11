@@ -4,7 +4,7 @@ plugins {
 }
 
 // Where the release app loads the TV screen from. Override with -PKARIBU_BASE_URL=https://your-domain
-val baseUrl = (findProperty("KARIBU_BASE_URL") as String?) ?: "https://karibu-tv.vercel.app"
+val baseUrl = (findProperty("KARIBU_BASE_URL") as String?) ?: "https://tv.mrserengeti.com"
 val appVersionCode = ((findProperty("KARIBU_VERSION_CODE") as String?) ?: "1").toInt()
 val appVersionName = (findProperty("KARIBU_VERSION_NAME") as String?) ?: "1.0.0"
 

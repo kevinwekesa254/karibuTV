@@ -10,6 +10,7 @@ import type { CountryCode } from "@/lib/types";
 import { Icon } from "@/components/Icons";
 import { PhoneInput } from "@/components/PhoneInput";
 import { AiConnect } from "./shared/AiConnect";
+import { CONFIG } from "@/lib/config";
 import { Button, Card, ConfirmModal, Field, Input, PageHeader, Select, Spinner, Tag } from "@/components/ui";
 
 function Panel({ title, description, children, icon }: { title: string; description?: string; children: ReactNode; icon: string }) {
@@ -233,9 +234,9 @@ export default function Settings() {
           </div>
         </Panel>
 
-        <Panel icon="sparkle" title="AI assistant" description="Connect your own Claude or ChatGPT account to get AI tips and suggestions on the Insights page.">
+        {CONFIG.features.aiAssistant && <Panel icon="sparkle" title="AI assistant" description="Connect your own Claude or ChatGPT account to get AI tips and suggestions on the Insights page.">
           <AiConnect />
-        </Panel>
+        </Panel>}
 
         <Panel icon="shield" title="Two-step verification" description="A 6-digit code from your phone, on top of your password.">
           <TwoStep />

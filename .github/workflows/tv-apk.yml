@@ -14,7 +14,7 @@ on:
     inputs:
       base_url:
         description: "Site the TV app loads (no trailing slash)"
-        default: "https://karibu-tv.vercel.app"
+        default: "https://tv.mrserengeti.com"
   push:
     tags: ["tv-v*"]
 
@@ -53,7 +53,7 @@ jobs:
           KARIBU_KEY_PASSWORD: ${{ secrets.KARIBU_KEY_PASSWORD }}
         run: |
           gradle -p tv-android :app:assembleRelease \
-            -PKARIBU_BASE_URL="${{ github.event.inputs.base_url || 'https://karibu-tv.vercel.app' }}" \
+            -PKARIBU_BASE_URL="${{ github.event.inputs.base_url || 'https://tv.mrserengeti.com' }}" \
             -PKARIBU_VERSION_NAME="${{ steps.v.outputs.name }}" -PKARIBU_VERSION_CODE="${{ steps.v.outputs.code }}"
           cp tv-android/app/build/outputs/apk/release/app-release.apk karibu-tv.apk
 

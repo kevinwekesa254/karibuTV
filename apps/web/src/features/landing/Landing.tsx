@@ -34,8 +34,13 @@ function Reveal({ children, delay = 0, className = "", y = 28 }: { children: Rea
   );
 }
 
+/** Kitenge band between sections, after the maroon and navy wax print. */
+function KitengeDivider() {
+  return <div aria-hidden className="kb-kikoi !h-[18px]" />;
+}
+
 function Section({ id, children, className = "" }: { id?: string; children: ReactNode; className?: string }) {
-  return <section id={id} className={`scroll-mt-20 px-4 py-20 sm:px-8 sm:py-28 ${className}`}><div className="mx-auto max-w-7xl">{children}</div></section>;
+  return <section id={id} className={`scroll-mt-20 px-4 py-14 sm:px-8 sm:py-20 ${className}`}><div className="mx-auto max-w-7xl">{children}</div></section>;
 }
 
 // ------------------------------------------------------------------ header
@@ -132,7 +137,7 @@ function Hero() {
   const p = samplePayload({ property: { layout: coast.layout, theme: coast.theme, photo_url: coast.photo } });
   const words = ["Five-star", "stays", "start", "at", "the", "TV."];
   return (
-    <section ref={ref} className="relative overflow-hidden bg-white px-4 pb-16 pt-10 sm:px-8 sm:pb-24 sm:pt-16">
+    <section ref={ref} className="relative overflow-hidden bg-white px-4 pb-12 pt-10 sm:px-8 sm:pb-16 sm:pt-14">
       <div aria-hidden className="kb-kitenge-panel pointer-events-none absolute -right-24 top-0 hidden h-full w-[38%] opacity-[0.07] lg:block" />
       <div className="relative mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[0.95fr_1.25fr]">
         <div>
@@ -215,13 +220,13 @@ function Story() {
     return () => io.disconnect();
   }, []);
   return (
-    <section id="story" className="scroll-mt-16 bg-white px-4 py-20 sm:px-8 sm:py-28">
+    <section id="story" className="scroll-mt-16 bg-white px-4 py-14 sm:px-8 sm:py-20">
       <div className="mx-auto max-w-7xl">
         <Reveal><h2 className={`max-w-3xl ${H2}`}>A whole stay, hosted by the TV on your wall.</h2></Reveal>
-        <div className="mt-14 grid gap-10 lg:grid-cols-[0.85fr_1.15fr]">
+        <div className="mt-8 grid gap-10 lg:grid-cols-[0.85fr_1.15fr]">
           <div>
             {STORY.map((x, i) => (
-              <div key={x.title} ref={(el) => { refs.current[i] = el; }} data-step={i} className="flex min-h-[46vh] items-center lg:min-h-[70vh]">
+              <div key={x.title} ref={(el) => { refs.current[i] = el; }} data-step={i} className="flex min-h-[40vh] items-center py-6 lg:min-h-[60vh]">
                 <div className={`transition-opacity duration-500 ${step === i ? "opacity-100" : "lg:opacity-35"}`}>
                   <span className={`flex h-12 w-12 items-center justify-center rounded-full transition-colors ${step === i ? "bg-maroon text-white" : "bg-mint-soft text-maroon"}`}><Icon name={x.icon} size={20} /></span>
                   <h3 className="mt-5 font-display text-3xl font-semibold leading-tight text-navy">{x.title}</h3>
@@ -309,8 +314,8 @@ function Features() {
         <Reveal delay={0.06} className="md:col-span-3">
           <div className="h-full rounded-[24px] bg-navy p-7 text-bone">
             <Icon name="sparkle" size={24} className="text-[#f3b0bd]" />
-            <h3 className="mt-5 font-display text-xl font-semibold">AI insights</h3>
-            <p className="mt-2 text-bone/70">See the most visited picks and most requested extras. Connect your own Claude or ChatGPT account and get suggestions for your area.</p>
+            <h3 className="mt-5 font-display text-xl font-semibold">Guest insights</h3>
+            <p className="mt-2 text-bone/70">See which picks guests visit most, which extras they request and when they open the guide.</p>
           </div>
         </Reveal>
         <Reveal delay={0.1} className="md:col-span-3">
@@ -436,7 +441,7 @@ function Pricing() {
                   : <span className="text-bone/60">Add {5 - tvs} more TV{5 - tvs > 1 ? "s" : ""} for 15% off the whole bill.</span>}
               </p>
               <ul className="mt-6 grid gap-2 text-sm text-bone/85 sm:grid-cols-2">
-                {["Calendar sync: Airbnb, Booking.com, Vrbo", "Up to 50 properties", "Your logo, no Karibu badge", "Weather on screen", "AI tips with your Claude or ChatGPT", "Pay by M-Pesa or card"].map((x) => (
+                {["Calendar sync: Airbnb, Booking.com, Vrbo", "Up to 50 properties", "Your logo, no Karibu badge", "Weather on screen", "Guest guide insights", "Pay by M-Pesa or card"].map((x) => (
                   <li key={x} className="flex gap-2"><Icon name="check" size={16} className="mt-0.5 text-[#f3b0bd]" />{x}</li>
                 ))}
               </ul>
@@ -547,7 +552,7 @@ function Contact() {
 
 function Closing() {
   return (
-    <section className="relative overflow-hidden bg-maroon px-4 py-20 text-white sm:px-8 sm:py-28">
+    <section className="relative overflow-hidden bg-maroon px-4 py-16 text-white sm:px-8 sm:py-20">
       <div aria-hidden className="kb-kitenge-panel absolute inset-0 opacity-[0.12]" />
       <div className="relative mx-auto max-w-4xl text-center">
         <Reveal><h2 className="font-display text-[clamp(2.2rem,5vw,4rem)] font-semibold leading-[1.02] tracking-[-0.02em]">Ready to say karibu?</h2></Reveal>
@@ -597,11 +602,17 @@ export default function Landing() {
         <Hero />
         <Places />
         <Story />
+        <KitengeDivider />
         <Features />
+        <KitengeDivider />
         <Templates />
+        <KitengeDivider />
         <AnyTv />
+        <KitengeDivider />
         <Pricing />
+        <KitengeDivider />
         <Faq />
+        <KitengeDivider />
         <Contact />
         <Closing />
       </main>

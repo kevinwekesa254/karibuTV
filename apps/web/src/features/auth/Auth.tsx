@@ -4,6 +4,7 @@ import { supabase, errorMessage, supabaseConfigured } from "@/lib/supabase";
 import { Logo } from "@/components/Logo";
 import { Button, ErrorBanner, Field, Input, Select } from "@/components/ui";
 import { Icon } from "@/components/Icons";
+import { CONFIG } from "@/lib/config";
 import { PhoneInput } from "@/components/PhoneInput";
 import { COUNTRIES, phoneValid, splitPhone } from "@/lib/countries";
 import { passwordProblem, passwordScore } from "@/lib/password";
@@ -29,7 +30,7 @@ const OAUTH: Record<OAuthProvider, { label: string; icon: string; className: str
   azure: { label: "Microsoft", icon: "microsoft", className: "bg-white text-ink border-line-strong/60 hover:bg-surface-wash" },
 };
 // Which buttons to show: only providers switched on in Supabase (Authentication > Providers).
-const ENABLED = ((import.meta.env.VITE_OAUTH_PROVIDERS as string | undefined) ?? "google,apple")
+const ENABLED = (CONFIG.features.socialLogin ? ((import.meta.env.VITE_OAUTH_PROVIDERS as string | undefined) ?? "google,apple") : "")
   .split(",").map((x) => x.trim()).filter((x): x is OAuthProvider => x in OAUTH);
 
 /** "Continue with Google / Apple…". New accounts get the same 30-day Pro trial; onboarding asks for the rest. */

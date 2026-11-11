@@ -8,6 +8,7 @@ import { useData } from "./data";
 import { useSaveProperty } from "./shared/editing";
 import { PropertySwitcher } from "./shared/widgets";
 import { useAiKey } from "./shared/AiConnect";
+import { CONFIG } from "@/lib/config";
 
 interface Ev { kind: "view" | "pick" | "extra" | "review" | "message"; item: string; created_at: string }
 interface Tip { title: string; detail: string }
@@ -129,7 +130,7 @@ function InsightsBody({ property }: { property: Property }) {
         </>
       )}
 
-      {aiKey === null ? (
+      {!CONFIG.features.aiAssistant ? null : aiKey === null ? (
         <Card className="overflow-hidden">
           <div className="kb-kikoi kb-kikoi--thin" />
           <div className="flex flex-wrap items-center justify-between gap-4 p-5 sm:p-6">
@@ -192,7 +193,7 @@ export default function Insights() {
   return (
     <div>
       <PageHeader title={<span className="flex items-center gap-3"><Icon name="chart" size={28} />Insights</span>}
-        subtitle="What guests open, tap and ask for, with AI suggestions." actions={<PropertySwitcher />} />
+        subtitle="What guests open, tap and ask for on your guide." actions={<PropertySwitcher />} />
       {selected ? <InsightsBody key={selected.id} property={selected} /> : <Card><EmptyState icon="building" title="Add a property first" action={<ButtonLink to="/app/properties">Add property</ButtonLink>} /></Card>}
     </div>
   );
