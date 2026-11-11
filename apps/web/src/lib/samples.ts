@@ -21,6 +21,13 @@ export function samplePayload(over: Omit<Partial<ScreenPayload>, "property"> & {
       generic_title: "", generic_note: "", thankyou_line: "Thank you for staying at Casa Mara!",
       contact_title: "Safe travels!", contact_line: "Message Amina on WhatsApp if you left anything behind.",
       layout: "classic", theme: "karibu", photo_url: null, logo_url: null, logo_position: "header",
+      review_url: "https://www.airbnb.com/", motion: true,
+      picks: [
+        { title: "Ali Barbour's Cave", note: "Dinner in a coral cave · 10 min", url: "" },
+        { title: "Colobus Conservation", note: "Monkey walks every morning", url: "" },
+        { title: "Kongo River mouth", note: "Quiet beach at sunset", url: "" },
+      ],
+      extras: [{ title: "Airport transfer", price: "KES 3,500" }, { title: "Late check-out", price: "KES 2,000" }],
       ...property,
     },
     wifi: { ssid: "CasaMara_5G", password: "karibu2026", security: "WPA", qr_string: "WIFI:T:WPA;S:CasaMara_5G;P:karibu2026;;" },

@@ -3,7 +3,14 @@ export interface TvTheme {
   key: string; label: string;
   bg: string; panel: string; panelLine: string; text: string; muted: string;
   accent: string; onAccent: string; chip: string;
+  /** Headline font. */
+  font: string;
+  /** Kikoi stripe along the bottom edge. */
+  stripe: boolean;
 }
+
+export const SERIF = '"Fraunces Variable", Fraunces, Georgia, serif';
+export const GROTESK = '"Familjen Grotesk", ui-sans-serif, system-ui, sans-serif';
 
 function hexToRgb(h: string) {
   const m = /^#?([0-9a-f]{6})$/i.exec((h || "").trim());
@@ -23,9 +30,9 @@ function luminance(h: string) {
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 }
 
-function make(key: string, label: string, bg: string, accent: string): TvTheme {
+function make(key: string, label: string, bg: string, accent: string, font = GROTESK, stripe = false): TvTheme {
   return {
-    key, label, bg, accent,
+    key, label, bg, accent, font, stripe,
     panel: mix(bg, "#ffffff", 0.06), panelLine: mix(bg, "#ffffff", 0.14), chip: mix(bg, "#ffffff", 0.09),
     text: "#f7f5f2", muted: mix("#f7f5f2", bg, 0.32),
     onAccent: luminance(accent) > 0.35 ? "#16110f" : "#ffffff",
@@ -33,7 +40,10 @@ function make(key: string, label: string, bg: string, accent: string): TvTheme {
 }
 
 export const THEMES: Record<string, TvTheme> = {
-  karibu: { ...make("karibu", "Karibu", "#0c1f16", "#c0ffa5"), text: "#f2fff0", muted: "#a9bfb2", panel: "#10291d", panelLine: "#24402f", chip: "#173a28" },
+  karibu: { ...make("karibu", "Karibu", "#0c1f16", "#ff8a5c", SERIF, true), text: "#fff6e9", muted: "#b5c4b9", panel: "#11291d", panelLine: "#24402f", chip: "#173a28" },
+  coast: make("coast", "Coast", "#07303a", "#ffb870", SERIF, true),
+  safari: make("safari", "Safari Lodge", "#26180d", "#f2a541", SERIF, true),
+  city: make("city", "City", "#121419", "#ff6b3d", GROTESK, true),
   maroon: make("maroon", "Maroon & gold", "#2a0c13", "#f2b85c"),
   midnight: make("midnight", "Midnight", "#0d1730", "#f5b942"),
   teal: make("teal", "Deep teal", "#0a3433", "#f2b85c"),

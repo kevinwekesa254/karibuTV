@@ -8,9 +8,13 @@ import { Icon } from "@/components/Icons";
 import { Button, Card, EmptyState, Field, Input, PageHeader, ProTag, Segmented, Spinner, Textarea, Toggle, Tag, ButtonLink } from "@/components/ui";
 import { RoomMockup, WelcomeScreen } from "@/features/tv/WelcomeScreen";
 import { THEMES } from "@/features/tv/themes";
+import { SAMPLE_PHOTOS, TEMPLATES, currentTemplate, type Template } from "@/lib/templates";
 import { useData } from "./data";
 import { SaveBar, Section, SortableList, usePropertyDraft, useSaveProperty } from "./shared/editing";
 import { PropertySwitcher, STATE_LABELS, usePreview } from "./shared/widgets";
+import { samplePayload } from "@/lib/samples";
+import { useSearchParams } from "react-router-dom";
+import { Celebration } from "./Tvs";
 
 const LAYOUTS: { value: Layout; label: string; desc: string }[] = [
   { value: "classic", label: "Classic", desc: "Photo strip on the left" },
@@ -57,13 +61,13 @@ function PhotoSlot({ property, field, label }: { property: Property; field: "pho
     try {
       const path = await uploadMedia(user.id, property.id, field, await resizeImage(file, 1600));
       const ok = await save({ [field]: path } as Partial<Property>, "Photo saved. Your TV updates in a few seconds.");
-      if (ok && current) supabase.storage.from(MEDIA_BUCKET).remove([current]).catch(() => {});
+      if (ok && current && !SAMPLE_PHOTOS.includes(current)) supabase.storage.from(MEDIA_BUCKET).remove([current]).catch(() => {});
     } catch (e) { toast((e as Error).message || "Upload failed.", "error"); }
     finally { setBusy(false); if (input.current) input.current.value = ""; }
   };
   const remove = async () => {
     const ok = await save({ [field]: "" } as Partial<Property>, "Photo removed.");
-    if (ok && current) supabase.storage.from(MEDIA_BUCKET).remove([current]).catch(() => {});
+    if (ok && current && !SAMPLE_PHOTOS.includes(current)) supabase.storage.from(MEDIA_BUCKET).remove([current]).catch(() => {});
   };
   const id = `${field}-in`;
   return (
@@ -74,7 +78,7 @@ function PhotoSlot({ property, field, label }: { property: Property; field: "pho
       </div>
       <div className="min-w-0 flex-1">
         <p className="text-sm font-semibold text-ink">{label}</p>
-        <p className="text-xs text-ink-muted">{current ? "Shown on this screen" : "No photo yet: the TV uses your colours"}</p>
+        <p className="text-xs text-ink-muted">{current ? (SAMPLE_PHOTOS.includes(current) ? "Template sample photo. Upload your own to replace it" : "Shown on this screen") : "No photo yet: the TV uses your colours"}</p>
       </div>
       <input ref={input} id={id} type="file" accept="image/*" className="sr-only" onChange={(e) => upload(e.target.files?.[0])} />
       <label htmlFor={id} className="kb-btn kb-btn--secondary kb-btn--sm cursor-pointer">{current ? "Replace" : "Upload"}</label>
@@ -86,7 +90,38 @@ function PhotoSlot({ property, field, label }: { property: Property; field: "pho
 const DRAFT_KEYS = [
   "welcome_title", "welcome_note", "generic_title", "generic_note", "thankyou_line", "contact_title", "contact_line",
   "checkout_steps", "layout", "theme", "color_bg", "color_accent", "logo_position", "weather_enabled", "weather_place",
+  "motion", "photo_welcome", "photo_checkout", "photo_generic",
 ] as const;
+
+const PHOTO_KEYS = ["photo_welcome", "photo_checkout", "photo_generic"] as const;
+
+/** Ready-made looks: one tap sets the layout, colours and (if you have none yet) a Kenyan sample photo. */
+function Templates({ draft, onApply }: { draft: Partial<Property> & { name: string }; onApply: (t: Template) => void }) {
+  const ownPhotos = PHOTO_KEYS.some((k) => draft[k] && !SAMPLE_PHOTOS.includes(draft[k] as string));
+  const active = currentTemplate(draft);
+  return (
+    <Section icon="palette" title="Start from a template" description="Pick the look that fits your place. You can still change everything below.">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        {TEMPLATES.map((t) => {
+          const photo = ownPhotos ? draft.photo_welcome || draft.photo_generic || "" : t.photo || "";
+          const p = samplePayload({ stay: { first_name: "Priya", checkin: "", checkout: "", nights: 3 }, property: {
+            name: draft.name, layout: t.layout, theme: t.theme, photo_url: photo ? mediaUrl(photo) : null, motion: false, picks: [], extras: [] } });
+          return (
+            <button key={t.key} type="button" onClick={() => onApply(t)} aria-pressed={active === t.key}
+              className={`group overflow-hidden rounded-lg border-2 text-left transition-all ${active === t.key ? "border-sun shadow-[0_10px_30px_-12px_rgba(242,107,58,.7)]" : "border-line hover:-translate-y-0.5 hover:border-line-strong"}`}>
+              <div className="pointer-events-none aspect-video w-full"><WelcomeScreen payload={p} /></div>
+              <div className="flex items-start justify-between gap-2 p-3">
+                <span><span className="block font-display text-base font-semibold text-forest">{t.label}</span><span className="block text-xs text-ink-muted">{t.blurb}</span></span>
+                {active === t.key && <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-sun text-on-sun"><Icon name="check" size={14} /></span>}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+      {!ownPhotos && <p className="mt-3 text-xs text-ink-muted">Sample photos from Unsplash. Upload your own below and the template keeps your photo.</p>}
+    </Section>
+  );
+}
 
 function Editor({ property }: { property: Property }) {
   const { plan, user } = useAuth();
@@ -113,6 +148,12 @@ function Editor({ property }: { property: Property }) {
   const custom = theme === "custom";
   const valid = !custom || (hexOk(draft.color_bg) && hexOk(draft.color_accent));
   const steps = draft.checkout_steps || [];
+
+  const applyTemplate = (t: Template) => {
+    set("layout", t.layout); set("theme", t.theme);
+    const ownPhotos = PHOTO_KEYS.some((k) => draft[k] && !SAMPLE_PHOTOS.includes(draft[k]));
+    if (!ownPhotos) for (const k of PHOTO_KEYS) set(k, t.photo || "");
+  };
 
   const onSave = async () => {
     if (draft.weather_enabled && !plan.pro) { openUpgrade("Weather on the TV is a Pro feature."); return; }
@@ -143,6 +184,7 @@ function Editor({ property }: { property: Property }) {
 
   return (
     <div className="space-y-6">
+      <Templates draft={{ ...property, ...draft }} onApply={applyTemplate} />
       <div className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
         <Card className="p-4">
           {payload && <RoomMockup payload={payload} />}
@@ -158,7 +200,7 @@ function Editor({ property }: { property: Property }) {
         <div className="space-y-3">
           {(["arriving", "checkout", "between"] as ScreenState[]).map((s) => (
             <button key={s} onClick={() => setState(s)} aria-pressed={active === s}
-              className={`flex w-full items-center gap-4 rounded-lg border-2 bg-surface p-3 text-left transition-colors ${active === s ? "border-forest shadow-card" : "border-line hover:border-line-strong"}`}>
+              className={`flex w-full items-center gap-4 rounded-lg border-2 bg-surface p-3 text-left transition-colors ${active === s ? "border-sun shadow-card" : "border-line hover:border-line-strong"}`}>
               <div className="w-28 shrink-0 overflow-hidden rounded-md" style={{ aspectRatio: "16/9" }}>
                 {property[STATE_LABELS[s].photo] ? <img src={mediaUrl(property[STATE_LABELS[s].photo] as string)} alt="" className="h-full w-full object-cover" />
                   : thumbs[s] ? <div className="pointer-events-none h-full w-full"><MiniScreen payload={thumbs[s]!} /></div> : null}
@@ -190,6 +232,13 @@ function Editor({ property }: { property: Property }) {
               <SortableList items={steps} max={6} addLabel="Add a step" onAdd={() => set("checkout_steps", [...steps, ""])} onChange={(v) => set("checkout_steps", v)}
                 render={(s, _i, update) => <Input value={s} onChange={(e) => update(e.target.value)} maxLength={80} placeholder="e.g. Leave the keys on the table" aria-label="Step" />} />
             </Section>
+            {!property.review_url && (
+              <a href="/app/guide" className="flex items-center gap-4 rounded-lg border-2 border-dashed border-sun/60 bg-sun-soft p-5 text-sun-ink lg:col-span-2">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-sun text-on-sun"><Icon name="star" /></span>
+                <span><b className="block">Ask for the review on check-out day</b><span className="text-sm">Add your review link and the TV shows “Loved your stay?” with a QR code. Set it up in Guide & Extras.</span></span>
+                <Icon name="arrow-right" className="ml-auto shrink-0" />
+              </a>
+            )}
             <Section icon="mail" title="Thank-you and contact">
               <div className="space-y-4">
                 <Field label="Thank-you line at the bottom" optional>{(id) => <Input id={id} value={draft.thankyou_line} onChange={(e) => set("thankyou_line", e.target.value)} maxLength={120} placeholder={`Thank you for staying at ${property.name}!`} />}</Field>
@@ -219,7 +268,7 @@ function Editor({ property }: { property: Property }) {
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
           {LAYOUTS.map((l) => (
             <button key={l.value} type="button" onClick={() => set("layout", l.value)} aria-pressed={draft.layout === l.value}
-              className={`rounded-md border-2 p-2 text-left transition-colors ${draft.layout === l.value ? "border-forest bg-mint-soft" : "border-line hover:border-line-strong"}`}>
+              className={`rounded-md border-2 p-2 text-left transition-colors ${draft.layout === l.value ? "border-sun bg-sun-soft" : "border-line hover:border-line-strong"}`}>
               <LayoutThumb layout={l.value} bg={look.bg} accent={look.accent} />
               <span className="mt-2 block text-sm font-semibold">{l.label}</span>
               <span className="block text-xs text-ink-muted">{l.desc}</span>
@@ -231,7 +280,7 @@ function Editor({ property }: { property: Property }) {
           {allThemes.map((t) => (
             <button key={t.key} type="button" aria-pressed={theme === t.key}
               onClick={() => { set("theme", t.key as ThemeName); if (t.key === "custom" && !hexOk(draft.color_bg)) { set("color_bg", "#2a0c13"); set("color_accent", "#f2b85c"); } }}
-              className={`flex w-24 flex-col items-center gap-1.5 rounded-md border-2 px-2 py-2.5 ${theme === t.key ? "border-forest bg-mint-soft" : "border-line hover:border-line-strong"}`}>
+              className={`flex w-24 flex-col items-center gap-1.5 rounded-md border-2 px-2 py-2.5 ${theme === t.key ? "border-sun bg-sun-soft" : "border-line hover:border-line-strong"}`}>
               <span className="flex h-9 w-14 items-center justify-end rounded-sm px-2" style={{ background: t.bg }}><span className="h-3.5 w-3.5 rounded-full" style={{ background: t.accent }} /></span>
               <span className="text-center text-xs font-semibold leading-tight">{t.label}</span>
             </button>
@@ -248,6 +297,10 @@ function Editor({ property }: { property: Property }) {
               </label>
             );
           })}
+        </div>
+        <div className="mt-6 border-t border-line pt-5">
+          <Toggle checked={draft.motion !== false} onChange={(v) => set("motion", v)} label="Gentle motion"
+            description="Slow photo drift, the name fades in, warmer colours at night." />
         </div>
       </Section>
 
@@ -289,10 +342,12 @@ function MiniScreen({ payload }: { payload: ScreenPayload }) { return <WelcomeSc
 
 export default function Screens() {
   const { selected } = useData();
+  const [params, setParams] = useSearchParams();
   return (
     <div>
       <PageHeader title={<span className="flex items-center gap-3"><Icon name="tv" size={28} />TV Screens</span>} subtitle="Create and customise the welcome screens on your TVs." actions={<PropertySwitcher />} />
       {selected ? <Editor key={selected.id} property={selected} /> : <Card><EmptyState icon="building" title="Add a property first" action={<ButtonLink to="/app/properties">Add property</ButtonLink>} /></Card>}
+      <Celebration open={params.get("live") === "1"} onClose={() => setParams({}, { replace: true })} />
     </div>
   );
 }

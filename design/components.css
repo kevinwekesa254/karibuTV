@@ -13,12 +13,14 @@
 .kb-btn--ghost { background:transparent; color:var(--ink); }
 .kb-btn--ghost:hover:not([disabled]) { background:color-mix(in srgb, var(--ink) 6%, transparent); }
 .kb-btn--mint { background:var(--mint); color:var(--on-mint); }
+.kb-btn--sun { background:var(--sun); color:var(--on-sun); }
+.kb-btn--sun:hover:not([disabled]) { background:color-mix(in srgb, var(--sun) 88%, #000); }
 .kb-btn--danger { background:transparent; color:var(--danger); border-color:var(--danger); }
 .kb-btn--danger:hover:not([disabled]) { background:color-mix(in srgb, var(--danger) 8%, transparent); }
 
 .kb-card { background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-lg); }
 .kb-tag { display:inline-flex; align-items:center; gap:.25rem; font-size:.75rem; font-weight:600; letter-spacing:.02em; padding:.125rem .5rem; border-radius:999px; background:var(--mint-soft); color:var(--forest); }
-.kb-eyebrow { font-size:.8125rem; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--green); }
+.kb-eyebrow { font-size:.8125rem; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--sun-ink); }
 
 .kb-input { width:100%; font:inherit; color:var(--ink); background:var(--surface); border:1.5px solid var(--line-strong); border-radius:var(--radius-sm); padding:.625rem .875rem; min-height:44px; transition:border-color .15s, box-shadow .15s; }
 .kb-input:focus { outline:none; border-color:var(--green); box-shadow:0 0 0 3px color-mix(in srgb, var(--green) 20%, transparent); }
@@ -27,5 +29,13 @@
 .kb-hint { font-size:.8125rem; color:var(--ink-muted); margin-top:.375rem; }
 .kb-error { font-size:.8125rem; color:var(--danger); margin-top:.375rem; }
 
-.kb-band { background:var(--mint); color:var(--on-mint); }
+.kb-band { background:var(--cream); color:var(--ink); border-top:5px solid transparent; border-image:repeating-linear-gradient(90deg, var(--forest) 0 34px, var(--sun) 34px 46px, var(--gold) 46px 52px, var(--forest) 52px 70px, var(--ocean) 70px 80px) 5; }
 .kb-band--soft { background:var(--mint-soft); }
+
+/* Kikoi stripe: the Karibu signature. A thin woven-cloth band, used sparingly. */
+.kb-kikoi { height:8px; background:repeating-linear-gradient(90deg,
+  var(--forest) 0 34px, var(--sun) 34px 46px, var(--gold) 46px 52px, var(--forest) 52px 70px,
+  var(--ocean) 70px 80px, var(--cream) 80px 84px, var(--sun) 84px 90px); }
+.kb-kikoi--thin { height:5px; }
+.kb-band--sun { background:var(--sun); color:var(--on-sun); }
+.kb-band--forest { background:var(--forest); color:var(--cream); }

@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import type { Layout, ScreenPayload } from "@/lib/types";
 import { t } from "@/lib/i18n";
-import { fmtDay, fmtWeekday } from "@/lib/dates";
+import { fmtDay, fmtWeekday, tzOffset } from "@/lib/dates";
 import { qrSvg } from "@/lib/qr";
 import { AMENITIES, Icon, WhatsAppIcon, weatherIcon } from "@/components/Icons";
 import { resolveTheme, type TvTheme } from "./themes";
@@ -47,14 +47,28 @@ function geometry(layout: Layout): { photo: CSSProperties | null; contentLeft: n
 
 const fit = (text: string, width: number, max: number) => Math.max(60, Math.min(max, Math.floor(width / (Math.max(text.length, 6) * 0.5))));
 
-function QrBox({ text, size }: { text: string; size: number }) {
+/** Guest phone page with the host's picks and extras (also works for previews: /g/demo). */
+export function guideUrl(id?: string) {
+  const origin = typeof window === "undefined" ? "" : window.location.origin;
+  return `${origin}/g/${id || "demo"}`;
+}
+const hasGuide = (p: ScreenPayload) => p.property.picks.length > 0 || p.property.extras.length > 0;
+
+/** Local evening (18:00–05:59): the screen warms up a little. */
+function isEvening(p: ScreenPayload) {
+  const d = new Date(Date.parse(p.now) + tzOffset(p.property.timezone) * 60_000);
+  const h = d.getUTCHours();
+  return h >= 18 || h < 6;
+}
+
+function QrBox({ text, size, label = "Wi-Fi QR code" }: { text: string; size: number; label?: string }) {
   const [svg, setSvg] = useState("");
   useEffect(() => {
     let live = true;
     if (text) qrSvg(text, { margin: 0 }).then((s) => live && setSvg(s)); else setSvg("");
     return () => { live = false; };
   }, [text]);
-  return <div style={{ width: size, height: size, background: "#fff", borderRadius: 22, padding: 18 }} className="shrink-0 [&>svg]:h-full [&>svg]:w-full" role="img" aria-label="Wi-Fi QR code" dangerouslySetInnerHTML={{ __html: svg }} />;
+  return <div style={{ width: size, height: size, background: "#fff", borderRadius: 22, padding: 18 }} className="shrink-0 [&>svg]:h-full [&>svg]:w-full" role="img" aria-label={label} dangerouslySetInnerHTML={{ __html: svg }} />;
 }
 
 function WifiCard({ p, th, compact }: { p: ScreenPayload; th: TvTheme; compact?: boolean }) {
@@ -85,6 +99,57 @@ function WifiCard({ p, th, compact }: { p: ScreenPayload; th: TvTheme; compact?:
           </dd>
         </div>
       </dl>
+    </div>
+  );
+}
+
+/** Check-out day: ask for the review while the stay is fresh. */
+function ReviewCard({ p, th }: { p: ScreenPayload; th: TvTheme }) {
+  const host = p.property.host_name;
+  return (
+    <div style={{ background: th.panel, border: `2px solid ${th.panelLine}`, borderRadius: 36, padding: 36, color: th.text, width: CARD_W }}>
+      <div className="flex items-center gap-4 font-display" style={{ fontSize: 36, fontWeight: 600, lineHeight: 1.1 }}>
+        <span className="flex shrink-0 items-center justify-center" style={{ background: th.accent, color: th.onAccent, borderRadius: 999, width: 56, height: 56 }}><Icon name="star" size={30} strokeWidth={2.4} /></span>
+        Loved your stay?
+      </div>
+      <p style={{ fontSize: 28, color: th.muted, lineHeight: 1.3, marginTop: 22 }}>Scan to leave a review. It takes a minute and means the world{host ? ` to ${host}` : ""}.</p>
+      <div className="mt-6 flex items-center gap-6">
+        <QrBox text={p.property.review_url} size={240} label="Review QR code" />
+        <div className="flex flex-col gap-2" aria-hidden>
+          {[0, 1, 2, 3, 4].map((i) => <Icon key={i} name="star" size={34} style={{ color: th.accent, fill: th.accent }} />)}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Host picks and extras: a few highlights on the TV, the full list on the guest's phone. */
+function GuideCard({ p, th, width, level = 0 }: { p: ScreenPayload; th: TvTheme; width: number; level?: number }) {
+  const picks = level >= 4 ? [] : p.property.picks.slice(0, level >= 2 ? 2 : 3);
+  const extras = p.property.extras;
+  const qr = width >= 900 ? 170 : 140;
+  return (
+    <div className="flex items-center gap-7" style={{ background: th.panel, border: `2px solid ${th.panelLine}`, borderRadius: 32, padding: "24px 28px", maxWidth: width }}>
+      <QrBox text={guideUrl(p.property.id)} size={qr} label="Local guide QR code" />
+      <div className="min-w-0">
+        <div style={{ fontSize: 22, color: th.accent, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" }}>
+          {p.property.picks.length ? "Our local picks" : "Extras for your stay"}
+        </div>
+        {level >= 4 ? null : picks.length > 0 ? (
+          <ul className="mt-2 space-y-1">
+            {picks.map((x, i) => (
+              <li key={i} className="truncate" style={{ fontSize: 28, lineHeight: 1.3 }}>
+                <span className="font-semibold">{x.title}</span>{x.note && <span style={{ color: th.muted }}> · {x.note}</span>}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div className="mt-2 truncate" style={{ fontSize: 28 }}>{extras.slice(0, 3).map((x) => x.title).join(" · ")}</div>
+        )}
+        <div className="mt-2" style={{ fontSize: 24, color: th.muted }}>
+          Scan for directions{extras.length ? `, ${extras.map((x) => x.title.toLowerCase()).slice(0, 2).join(", ")} and more` : " and more tips"}
+        </div>
+      </div>
     </div>
   );
 }
@@ -170,24 +235,38 @@ function withName(template: string, name: string, th: TvTheme): ReactNode {
   return parts.flatMap((part, i) => (i === 0 ? [part] : [<Accent key={i} th={th}>{name}</Accent>, part]));
 }
 
-function Main({ p, th, width }: { p: ScreenPayload; th: TvTheme; width: number }) {
+/**
+ * Main column. `level` steps the content down until it fits the screen (measured by WelcomeScreen):
+ * 1 compact stay line · 2 two picks · 3 no welcome note · 4 guide card without the list.
+ */
+function Main({ p, th, width, level }: { p: ScreenPayload; th: TvTheme; width: number; level: number }) {
   const pr = p.property;
   const name = p.stay?.first_name?.trim() || "";
   const headline = (text: string): CSSProperties => ({ fontSize: fit(text, width, 120), fontWeight: 600, lineHeight: 1.03, letterSpacing: "-0.02em" });
+  const h1 = `font-display${pr.motion ? " tv-rise" : ""}`;
+  const extra = hasGuide(p) ? <div className={level >= 1 ? "mt-7" : "mt-9"}><GuideCard p={p} th={th} width={width} level={level} /></div> : <div className="mt-10"><Amenities p={p} th={th} /></div>;
 
   if (p.state === "arriving" && p.stay) {
     const tpl = pr.welcome_title || "Welcome, {name}!";
     const plain = name ? tpl.split("{name}").join(name) : tpl.includes("{name}") ? t("greeting_noname") : tpl;
     const nights = p.stay.nights === 1 ? t("night") : t("nights", { n: p.stay.nights });
+    // Narrow layouts with a guide: one compact stay line instead of two chips, so everything fits.
+    const compact = level >= 1 || (hasGuide(p) && width < 900);
     return (
       <>
-        <h1 className="font-display" style={headline(plain)}>{name ? withName(tpl, name, th) : plain}</h1>
-        {pr.welcome_note && <p style={{ fontSize: 34, color: th.muted, marginTop: 22, lineHeight: 1.3 }}>{pr.welcome_note}</p>}
-        <div className="mt-10 flex flex-wrap gap-4">
-          <Chip th={th} label={t("your_stay")} value={<>{fmtDay(p.stay.checkin)} → {fmtDay(p.stay.checkout)} · {nights}</>} />
-          <Chip th={th} label={t("checkout")} value={<>{fmtWeekday(p.stay.checkout)}, {pr.checkout_time}</>} />
-        </div>
-        <div className="mt-10"><Amenities p={p} th={th} /></div>
+        <h1 className={h1} style={headline(plain)}>{name ? withName(tpl, name, th) : plain}</h1>
+        {pr.welcome_note && level < 3 && <p style={{ fontSize: compact ? 30 : 34, color: th.muted, marginTop: 22, lineHeight: 1.3 }}>{pr.welcome_note}</p>}
+        {compact ? (
+          <div className="mt-6 font-semibold" style={{ fontSize: 30 }}>
+            {fmtDay(p.stay.checkin)} → {fmtDay(p.stay.checkout)} · {nights}<span style={{ color: th.muted, fontWeight: 400 }}> · {t("checkout")} {pr.checkout_time}</span>
+          </div>
+        ) : (
+          <div className="mt-10 flex flex-wrap gap-4">
+            <Chip th={th} label={t("your_stay")} value={<>{fmtDay(p.stay.checkin)} → {fmtDay(p.stay.checkout)} · {nights}</>} />
+            <Chip th={th} label={t("checkout")} value={<>{fmtWeekday(p.stay.checkout)}, {pr.checkout_time}</>} />
+          </div>
+        )}
+        {extra}
       </>
     );
   }
@@ -196,7 +275,7 @@ function Main({ p, th, width }: { p: ScreenPayload; th: TvTheme; width: number }
     const steps = pr.checkout_steps.slice(0, 6);
     return (
       <>
-        <h1 className="font-display" style={headline(`Check-out today by ${pr.checkout_time}`)}>Check-out <Accent th={th}>today</Accent> by {pr.checkout_time}</h1>
+        <h1 className={h1} style={headline(`Check-out today by ${pr.checkout_time}`)}>Check-out <Accent th={th}>today</Accent> by {pr.checkout_time}</h1>
         <p style={{ fontSize: 34, color: th.muted, marginTop: 20, lineHeight: 1.3 }}>
           Thank you for staying with us{name ? <>, <Accent th={th}>{name}</Accent></> : ""}! We hope you enjoyed your stay.
         </p>
@@ -220,9 +299,9 @@ function Main({ p, th, width }: { p: ScreenPayload; th: TvTheme; width: number }
   const gtitle = pr.generic_title || t("welcome_to", { name: pr.name });
   return (
     <>
-      <h1 className="font-display" style={headline(gtitle)}>{gtitle}</h1>
-      {(pr.generic_note || pr.tagline) && <p style={{ fontSize: 34, color: th.muted, marginTop: 22, lineHeight: 1.3 }}>{pr.generic_note || pr.tagline}</p>}
-      <div className="mt-10"><Amenities p={p} th={th} /></div>
+      <h1 className={h1} style={headline(gtitle)}>{gtitle}</h1>
+      {(pr.generic_note || pr.tagline) && level < 3 && <p style={{ fontSize: 34, color: th.muted, marginTop: 22, lineHeight: 1.3 }}>{pr.generic_note || pr.tagline}</p>}
+      {extra}
     </>
   );
 }
@@ -265,15 +344,30 @@ export function WelcomeScreen({ payload, shift, overlay }: { payload: ScreenPayl
   const photo = g.photo ? p.property.photo_url : null;
   const contentRight = g.contentRight ?? g.cardRight + CARD_W + GAP;
   const contentWidth = W - g.contentLeft - contentRight;
+  const motion = p.property.motion;
+  const evening = motion && isEvening(p);
+  const review = p.state === "checkout" && !!p.property.review_url;
+
+  // Fit: if the main column overflows, step the content down one level and measure again.
+  const mainRef = useRef<HTMLDivElement>(null);
+  const sig = JSON.stringify([p.state, layout, p.stay?.first_name, p.stay?.nights, p.property.welcome_note, p.property.generic_note, p.property.picks, p.property.extras, p.property.welcome_title, p.property.house_rules, !!p.weather]);
+  const [fitState, setFitState] = useState({ sig, level: 0 });
+  const [fontsTick, setFontsTick] = useState(0);
+  const level = fitState.sig === sig ? fitState.level : 0;
+  useEffect(() => { document.fonts?.ready.then(() => setFontsTick((n) => n + 1)); }, []);
+  useLayoutEffect(() => {
+    const el = mainRef.current;
+    if (el && el.scrollHeight > el.clientHeight + 2 && level < 4) setFitState({ sig, level: level + 1 });
+  }, [sig, level, fontsTick]);
 
   return (
     <Stage shift={shift} bg={th.bg}>
-      <div style={{ width: W, height: H, background: th.bg, color: th.text, fontFamily: "Inter, sans-serif", position: "relative", overflow: "hidden" }} lang="en">
+      <div style={{ width: W, height: H, background: th.bg, color: th.text, fontFamily: "Inter, sans-serif", position: "relative", overflow: "hidden", ["--font-display" as string]: th.font } as CSSProperties} lang="en">
         <div key={`${p.state}|${photo}|${layout}`} className="tv-fade absolute inset-0">
           {g.photo && (
-            <div className="absolute" style={{ top: 0, bottom: 0, ...g.photo }}>
+            <div className="absolute overflow-hidden" style={{ top: 0, bottom: 0, ...g.photo }}>
               {photo
-                ? <img src={photo} alt="" className="h-full w-full object-cover" />
+                ? <img src={photo} alt="" className={`h-full w-full object-cover${motion ? " tv-drift" : ""}`} />
                 : <div className="h-full w-full" style={{ background: `linear-gradient(135deg, ${th.chip}, ${th.panel})` }} />}
               {layout === "fullphoto" && <div className="absolute inset-0" style={{ background: `linear-gradient(90deg, ${th.bg} 0%, ${th.bg}f0 38%, ${th.bg}aa 62%, ${th.bg}55 100%)` }} />}
               {layout === "spotlight" && <div className="absolute inset-0" style={{ background: `linear-gradient(90deg, ${th.bg} 0%, ${th.bg}00 30%)` }} />}
@@ -282,11 +376,12 @@ export function WelcomeScreen({ payload, shift, overlay }: { payload: ScreenPayl
           )}
           <div className="absolute flex flex-col" style={{ left: g.contentLeft, top: M, bottom: M, right: contentRight }}>
             <Header p={p} th={th} />
-            <div className="min-h-0 flex-1 overflow-hidden" style={{ paddingTop: 52 }}><Main p={p} th={th} width={contentWidth} /></div>
+            <div ref={mainRef} className="min-h-0 flex-1 overflow-hidden" style={{ paddingTop: 52 }}><Main p={p} th={th} width={contentWidth} level={level} /></div>
             <Footer p={p} th={th} />
           </div>
+          {evening && <div className="tv-glow pointer-events-none absolute inset-0" style={{ background: `radial-gradient(120% 80% at 50% 115%, ${th.accent}2e 0%, transparent 60%)` }} />}
           <div className="absolute flex flex-col gap-5" style={{ right: g.cardRight, top: M + 64 }}>
-            <WifiCard p={p} th={th} compact={!!p.weather} />
+            {review ? <ReviewCard p={p} th={th} /> : <WifiCard p={p} th={th} compact={!!p.weather} />}
             <Weather p={p} th={th} />
           </div>
         </div>
@@ -294,6 +389,7 @@ export function WelcomeScreen({ payload, shift, overlay }: { payload: ScreenPayl
           {p.restricted && <div style={{ fontSize: 22, color: th.muted }}>{t("renew")}</div>}
           {p.plan.branded && <div className="flex items-center gap-2 font-display" style={{ opacity: 0.6, color: th.text, fontSize: 24, fontWeight: 600 }}><Icon name="tv" size={26} /> Karibu TV</div>}
         </div>
+        {th.stripe && <div aria-hidden className="absolute inset-x-0 bottom-0" style={{ height: 12, background: "repeating-linear-gradient(90deg, #004227 0 68px, #f26b3a 68px 92px, #f6b93b 92px 104px, #004227 104px 140px, #1f7a8c 140px 160px, #fff6e9 160px 168px, #f26b3a 168px 180px)" }} />}
         {overlay}
       </div>
     </Stage>

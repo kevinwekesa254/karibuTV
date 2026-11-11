@@ -7,7 +7,7 @@ import { todayIn, tvStatus } from "@/lib/dates";
 import type { Calendar, Stay } from "@/lib/types";
 import { Logo } from "@/components/Logo";
 import { Icon } from "@/components/Icons";
-import { PageLoader, Tag } from "@/components/ui";
+import { PageLoader } from "@/components/ui";
 import { DataProvider, useData } from "./data";
 import { UpgradeSheet } from "./shared/UpgradeSheet";
 
@@ -16,6 +16,7 @@ const NAV = [
   { to: "/app/properties", label: "Properties", icon: "building" },
   { to: "/app/bookings", label: "Bookings", icon: "calendar" },
   { to: "/app/screens", label: "TV Screens", icon: "tv" },
+  { to: "/app/guide", label: "Guide & Extras", icon: "pin" },
   { to: "/app/wifi", label: "Wi-Fi & QR Code", icon: "wifi" },
   { to: "/app/rules", label: "House Rules", icon: "clipboard" },
   { to: "/app/integrations", label: "Integrations", icon: "link" },
@@ -28,37 +29,38 @@ const TABS = [
   { to: "/app/bookings", label: "Bookings", icon: "calendar" },
   { to: "/app/screens", label: "Screens", icon: "tv" },
   { to: "/app/tvs", label: "TVs", icon: "tv-signal" },
-  { to: "/app/more", label: "More", icon: "more", match: ["/app/more", "/app/properties", "/app/wifi", "/app/rules", "/app/integrations", "/app/billing", "/app/settings"] },
+  { to: "/app/more", label: "More", icon: "more", match: ["/app/more", "/app/guide", "/app/properties", "/app/wifi", "/app/rules", "/app/integrations", "/app/billing", "/app/settings"] },
 ];
 
 function Sidebar() {
   const { plan } = useAuth();
   return (
-    <aside className="fixed inset-y-0 left-0 hidden w-64 flex-col overflow-y-auto border-r border-line bg-surface lg:flex">
-      <div className="px-6 py-6"><Logo to="/app" /></div>
+    <aside className="fixed inset-y-0 left-0 hidden w-64 flex-col overflow-y-auto bg-[#0b2a1c] text-[#fff6e9] lg:flex">
+      <div className="kb-kikoi kb-kikoi--thin" />
+      <div className="px-6 py-6"><Logo to="/app" light /></div>
       <nav className="space-y-0.5 px-3" aria-label="Main">
         {NAV.map((n) => (
           <NavLink key={n.to} to={n.to} end={n.end}
-            className={({ isActive }) => `flex items-center gap-3 rounded-full px-4 py-2.5 text-[0.9375rem] font-semibold transition-colors ${isActive ? "bg-mint text-on-mint" : "text-ink hover:bg-mint-soft"}`}>
+            className={({ isActive }) => `flex items-center gap-3 rounded-full px-4 py-2.5 text-[0.9375rem] font-semibold transition-colors ${isActive ? "bg-sun text-on-sun shadow-[0_6px_20px_-8px_rgba(242,107,58,.8)]" : "text-[#fff6e9]/80 hover:bg-white/10 hover:text-[#fff6e9]"}`}>
             <Icon name={n.icon} />{n.label}
           </NavLink>
         ))}
       </nav>
       <div className="mt-auto p-3">
         <Link to="/app/screens" className="group relative block overflow-hidden rounded-lg">
-          <img src="/mockups/living-room.jpg" alt="" className="h-40 w-full object-cover object-[50%_70%] transition-transform duration-500 group-hover:scale-105" />
+          <img src="/templates/coast.jpg" alt="" className="h-40 w-full object-cover transition-transform duration-500 group-hover:scale-105" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
           <div className="absolute inset-x-4 bottom-4 text-white">
             <p className="font-display text-lg font-semibold leading-tight">Create a memorable guest experience</p>
-            <span className="mt-2 block h-1 w-10 rounded-full bg-mint" />
+            <span className="mt-2 block h-1 w-10 rounded-full bg-sun" />
           </div>
         </Link>
-        <div className="mt-3 flex items-center justify-between rounded-md bg-surface-wash px-4 py-3">
+        <div className="mt-3 flex items-center justify-between rounded-md bg-white/10 px-4 py-3">
           <div>
             <p className="text-sm font-semibold">{plan.trial ? "Pro trial" : plan.pro ? "Pro plan" : "Free plan"}</p>
-            <p className="text-xs text-ink-muted">{plan.trial ? `${plan.daysLeft} days left` : plan.pro ? `${plan.maxTvs} TV${plan.maxTvs > 1 ? "s" : ""}` : "1 TV · 1 property"}</p>
+            <p className="text-xs text-[#fff6e9]/70">{plan.trial ? `${plan.daysLeft} days left` : plan.pro ? `${plan.maxTvs} TV${plan.maxTvs > 1 ? "s" : ""}` : "1 TV · 1 property"}</p>
           </div>
-          {plan.pro ? <Tag tone="ink">PRO</Tag> : <Link to="/app/billing" className="text-sm font-semibold text-green underline">Upgrade</Link>}
+          {plan.pro ? <span className="rounded-full bg-sun px-2 py-0.5 text-xs font-bold text-on-sun">PRO</span> : <Link to="/app/billing" className="text-sm font-semibold text-sun underline">Upgrade</Link>}
         </div>
       </div>
     </aside>
@@ -193,7 +195,7 @@ function TopBar() {
           </Popover>
           <span className="mx-1 hidden h-8 w-px bg-line sm:block" />
           <Popover label="Account menu" button={<>
-            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-forest font-display font-semibold text-mint">{name[0].toUpperCase()}</span>
+            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-sun font-display font-semibold text-on-sun">{name[0].toUpperCase()}</span>
             <span className="hidden text-left sm:block"><span className="block max-w-[10rem] truncate leading-tight">{name}</span><span className="block text-xs font-normal text-ink-muted">Host</span></span>
             <Icon name="chevron-down" size={16} className="hidden sm:block" />
           </>}>
@@ -223,7 +225,7 @@ function TabBar() {
           return (
             <NavLink key={t.to} to={t.to} end={t.end} aria-current={active ? "page" : undefined}
               className={`flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-semibold ${active ? "text-forest" : "text-ink-muted"}`}>
-              <span className={`flex h-8 w-12 items-center justify-center rounded-full ${active ? "bg-mint" : ""}`}><Icon name={t.icon} size={21} /></span>
+              <span className={`flex h-8 w-12 items-center justify-center rounded-full ${active ? "bg-sun text-on-sun" : ""}`}><Icon name={t.icon} size={21} /></span>
               {t.label}
             </NavLink>
           );

@@ -24,7 +24,7 @@ docs/            SETUP_GUIDE.md (TV install guide for hosts)
 
 ## Set up Supabase
 
-1. The Supabase GitHub integration (linked to this repo, directory `supabase`) applies `supabase/migrations` when `main` changes. To apply by hand instead, run the migration SQL once in the SQL Editor.
+1. The Supabase GitHub integration (linked to this repo, directory `supabase`) applies `supabase/migrations` when `main` changes. To apply by hand instead, run each file in `supabase/migrations` once, in order, in the SQL Editor (`20261111000000_karibu_templates.sql` is safe to re-run).
 2. Deploy the Edge Functions `ical-sync` and `weather` (GitHub integration, or `supabase functions deploy`). Optional secret: `MET_USER_AGENT="KaribuTV/1.0 (you@domain)"`.
 3. Run `supabase/cron.sql` once in the SQL Editor (fill in the project ref and service-role key) to sync calendars every 30 min and weather hourly.
 4. Auth → URL configuration: set the Site URL to your domain and add `https://<domain>/reset/new` as a redirect URL.

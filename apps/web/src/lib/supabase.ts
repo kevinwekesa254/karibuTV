@@ -20,6 +20,7 @@ export const MEDIA_BUCKET = "property-media";
 /** Public URL for a file in the media bucket (photos, logos). */
 export function mediaUrl(path: string | null | undefined) {
   if (!path) return "";
+  if (/^(https?:)?\//.test(path)) return path; // bundled sample photos (/templates/…) and absolute URLs
   // Photos are resized to ≤1600 px before upload, so the original is served as-is.
   return supabase.storage.from(MEDIA_BUCKET).getPublicUrl(path).data.publicUrl;
 }

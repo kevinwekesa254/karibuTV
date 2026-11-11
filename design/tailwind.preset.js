@@ -11,12 +11,13 @@ module.exports = {
       colors: Object.fromEntries([
         "mint", "mint-soft", "on-mint", "forest", "green", "ink", "on-ink", "ink-muted",
         "surface", "surface-wash", "line", "line-strong", "cream", "danger", "warning",
+        "sun", "sun-soft", "on-sun", "sun-ink", "gold", "ocean",
       ].map((n) => [n, c(n)])),
       borderRadius: {
         sm: v("radius-sm"), md: v("radius-md"), lg: v("radius-lg"),
         band: v("radius-band"), "band-xl": v("radius-band-xl"),
       },
-      fontFamily: { display: v("font-display").split(","), sans: v("font-text").split(",") },
+      fontFamily: { display: v("font-display").split(","), sans: v("font-text").split(","), tv: v("font-tv").split(",") },
       boxShadow: { card: v("shadow-card"), panel: v("shadow-panel") },
       fontSize: {
         "display-xl": ["clamp(2.5rem, 6vw, 4.5rem)", { lineHeight: "1.02", letterSpacing: "-0.02em", fontWeight: "600" }],

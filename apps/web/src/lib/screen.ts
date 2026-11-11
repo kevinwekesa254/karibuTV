@@ -132,6 +132,11 @@ export function buildPayload(o: {
       photo_url: photo ? o.mediaUrl(photo) : null,
       logo_url: pro && p.logo ? o.mediaUrl(p.logo) : null,
       logo_position: p.logo_position || "header",
+      id: p.id,
+      review_url: p.review_url || "",
+      picks: (Array.isArray(p.picks) ? p.picks : []).filter((x) => x && x.title).slice(0, 6),
+      extras: (Array.isArray(p.extras) ? p.extras : []).filter((x) => x && x.title).slice(0, 6),
+      motion: p.motion !== false,
     },
     wifi: {
       ssid: p.wifi_ssid || "",

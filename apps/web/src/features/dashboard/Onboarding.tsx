@@ -96,11 +96,11 @@ function Wizard() {
 
   const go = (n: number) => { setError(""); setTouched(false); setStep(n); window.scrollTo(0, 0); };
 
-  const finish = async () => {
+  const finish = async (paired = false) => {
     await progress(STEPS.length);
     await reloadProperties();
-    toast("You're all set. Karibu!");
-    nav(property ? "/app/screens" : "/app", { replace: true });
+    if (!paired) toast("You're all set. Karibu!");
+    nav(property ? `/app/screens${paired ? "?live=1" : ""}` : "/app", { replace: true });
   };
 
   const saveStep = async (data: Partial<Property>, next: number) => {
@@ -219,10 +219,10 @@ function Wizard() {
   }
 
   return (
-    <StepShell step={3} title="Pair your TV" subtitle="Install the app on the TV, then type the code it shows." onBack={() => go(2)} onSkip={finish} nextLabel="Finish" onNext={finish}>
+    <StepShell step={3} title="Pair your TV" subtitle="Install the app on the TV, then type the code it shows." onBack={() => go(2)} onSkip={() => finish()} nextLabel="Finish" onNext={() => finish()}>
       <div className="rounded-md bg-surface-wash p-4"><InstallSteps /></div>
       <div className="mt-6">
-        {property ? <PairTvForm properties={[property]} defaultProperty={property.id} onPaired={() => { reloadDevices(); finish(); }} />
+        {property ? <PairTvForm properties={[property]} defaultProperty={property.id} onPaired={() => { reloadDevices(); finish(true); }} />
           : <p className="text-sm text-ink-muted">Go back and add your property first.</p>}
       </div>
       <p className="mt-4 text-sm text-ink-muted">No TV nearby? Open <b>{window.location.host}/tv</b> in any browser to try it.</p>

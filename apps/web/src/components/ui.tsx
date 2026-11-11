@@ -5,7 +5,7 @@ import {
 import { Link, type LinkProps } from "react-router-dom";
 import { Icon } from "./Icons";
 
-type Variant = "primary" | "secondary" | "ghost" | "mint" | "danger";
+type Variant = "primary" | "secondary" | "ghost" | "mint" | "sun" | "danger";
 type Size = "sm" | "md" | "lg";
 const btn = (v: Variant, s: Size, extra = "") => `kb-btn kb-btn--${v} kb-btn--${s} ${extra}`;
 

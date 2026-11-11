@@ -1,7 +1,7 @@
 export type PlanName = "free" | "pro";
 export type ScreenState = "arriving" | "checkout" | "between";
 export type Layout = "classic" | "mirror" | "fullphoto" | "spotlight" | "minimal";
-export type ThemeName = "karibu" | "maroon" | "midnight" | "teal" | "forest" | "charcoal" | "plum" | "espresso" | "ocean" | "custom";
+export type ThemeName = "karibu" | "maroon" | "midnight" | "teal" | "forest" | "charcoal" | "plum" | "espresso" | "ocean" | "coast" | "safari" | "city" | "custom";
 export type Provider = "airbnb" | "booking" | "vrbo" | "google" | "ical" | "pms";
 
 export interface Profile {
@@ -12,6 +12,10 @@ export interface Profile {
 }
 
 export interface HouseRule { icon: string; text: string }
+/** A host recommendation: a beach, a restaurant, a trusted taxi driver. */
+export interface Pick { title: string; note: string; url: string }
+/** Something guests can ask the host for on WhatsApp (airport transfer, late check-out…). */
+export interface Extra { title: string; price: string }
 
 export interface Property {
   id: string; owner_id: string; name: string; tagline: string; area: string; timezone: string;
@@ -24,6 +28,7 @@ export interface Property {
   photo_welcome: string; photo_checkout: string; photo_generic: string; logo: string; logo_position: "header" | "wifi";
   weather_enabled: boolean; weather_place: string; weather_lat: number | null; weather_lon: number | null;
   weather_json: WeatherData | null; weather_at: string | null;
+  review_url: string; picks: Pick[]; extras: Extra[]; motion: boolean;
   created_at: string; updated_at: string;
 }
 
@@ -65,6 +70,7 @@ export interface ScreenPayload {
     generic_title: string; generic_note: string; thankyou_line: string; contact_title: string; contact_line: string;
     layout: Layout; theme: string; color_bg?: string; color_accent?: string;
     photo_url: string | null; logo_url: string | null; logo_position: "header" | "wifi";
+    id?: string; review_url: string; picks: Pick[]; extras: Extra[]; motion: boolean;
   };
   wifi: { ssid: string; password: string | null; security: "WPA" | "WEP" | "nopass"; qr_string: string };
   stay: { first_name: string; checkin: string; checkout: string; nights: number } | null;

@@ -119,12 +119,38 @@ function DeviceRow({ d }: { d: Device }) {
   );
 }
 
+/** First moment worth sharing: the TV just came alive. */
+export function Celebration({ open, onClose, tvName }: { open: boolean; onClose: () => void; tvName?: string }) {
+  if (!open) return null;
+  const colors = ["#f26b3a", "#f6b93b", "#004227", "#1f7a8c", "#c0ffa5"];
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4" role="dialog" aria-modal="true" aria-labelledby="kb-live-title" onClick={onClose}>
+      <div className="kb-pop relative w-full max-w-md overflow-hidden rounded-lg bg-surface text-center shadow-panel" onClick={(e) => e.stopPropagation()}>
+        <div className="kb-confetti pointer-events-none absolute inset-0" aria-hidden>
+          {Array.from({ length: 28 }, (_, i) => <span key={i} style={{ left: `${(i * 37) % 100}%`, background: colors[i % colors.length], animationDelay: `${(i % 7) * 0.12}s` }} />)}
+        </div>
+        <div className="kb-kikoi" />
+        <div className="px-6 pb-7 pt-8">
+          <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-sun text-on-sun"><Icon name="tv" size={30} /></span>
+          <h2 id="kb-live-title" className="mt-5 font-display text-3xl font-semibold text-forest">Your TV is live!</h2>
+          <p className="mt-2 text-ink-muted">{tvName ? `${tvName} now` : "It now"} says karibu to every guest. Look at the TV: your welcome screen is on.</p>
+          <div className="mt-6 flex flex-wrap justify-center gap-2">
+            <a href="/app/screens" className="kb-btn kb-btn--sun kb-btn--md">Make it look great</a>
+            <Button variant="ghost" onClick={onClose}>Done</Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Tvs() {
   const [params, setParams] = useSearchParams();
   const { devices, properties, selected, reloadDevices, openUpgrade } = useData();
   const { plan } = useAuth();
   const code = params.get("code") || "";
   const [pairing, setPairing] = useState(!!code || params.get("pair") === "1");
+  const [live, setLive] = useState(false);
   const paired = devices.filter((d) => d.property_id);
   const atLimit = paired.length >= plan.maxTvs;
   const startOfDay = new Date(); startOfDay.setHours(0, 0, 0, 0);
@@ -163,9 +189,10 @@ export default function Tvs() {
           <div className="mt-4"><InstallSteps /></div>
         </details>
         {properties.length ? (
-          <PairTvForm properties={properties} initialCode={code} defaultProperty={params.get("property") || selected?.id} onPaired={() => { reloadDevices(); close(); }} />
+          <PairTvForm properties={properties} initialCode={code} defaultProperty={params.get("property") || selected?.id} onPaired={() => { reloadDevices(); close(); setLive(true); }} />
         ) : <EmptyState icon="building" title="Add a property first" />}
       </Modal>
+      <Celebration open={live} onClose={() => setLive(false)} />
     </div>
   );
 }
