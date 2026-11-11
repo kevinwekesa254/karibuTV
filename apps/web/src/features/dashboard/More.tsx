@@ -10,6 +10,7 @@ export default function More() {
   const items = [
     { to: "/app/guide", icon: "pin", label: "Guide & Extras" },
     { to: "/app/insights", icon: "chart", label: "Insights" },
+    { to: "/app/support", icon: "help", label: "Support" },
     { to: "/app/properties", icon: "building", label: "Properties" },
     { to: "/app/wifi", icon: "wifi", label: "Wi-Fi & QR Code" },
     { to: "/app/rules", icon: "clipboard", label: "House Rules" },

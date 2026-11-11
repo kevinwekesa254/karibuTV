@@ -23,6 +23,7 @@ const NAV = [
   { to: "/app/integrations", label: "Integrations", icon: "link" },
   { to: "/app/tvs", label: "TV Devices", icon: "tv-signal" },
   { to: "/app/billing", label: "Billing", icon: "card" },
+  { to: "/app/support", label: "Support", icon: "help" },
   { to: "/app/settings", label: "Settings", icon: "settings" },
 ];
 const TABS = [
@@ -30,7 +31,7 @@ const TABS = [
   { to: "/app/bookings", label: "Bookings", icon: "calendar" },
   { to: "/app/screens", label: "Screens", icon: "tv" },
   { to: "/app/tvs", label: "TVs", icon: "tv-signal" },
-  { to: "/app/more", label: "More", icon: "more", match: ["/app/more", "/app/guide", "/app/insights", "/app/properties", "/app/wifi", "/app/rules", "/app/integrations", "/app/billing", "/app/settings"] },
+  { to: "/app/more", label: "More", icon: "more", match: ["/app/more", "/app/guide", "/app/insights", "/app/support", "/app/properties", "/app/wifi", "/app/rules", "/app/integrations", "/app/billing", "/app/settings"] },
 ];
 
 function Sidebar() {
@@ -207,7 +208,9 @@ function TopBar() {
           <Popover label="Help" button={<><Icon name="help" /><span className="hidden sm:inline">Help</span></>}>
             {(close) => (
               <>
+                <button className={item} onClick={() => { close(); nav("/app/support"); }}><Icon name="help" size={16} />Contact support</button>
                 <a className={item} href={waLink(BRAND.supportWhatsApp, "Hi! I need help with Karibu TV.")} target="_blank" rel="noreferrer" onClick={close}><Icon name="phone" size={16} />Chat with us on WhatsApp</a>
+                <a className={item} href="/shop" onClick={close}><Icon name="bag" size={16} />Buy a TV stick</a>
                 <button className={item} onClick={() => { close(); nav("/app/tvs"); }}><Icon name="tv" size={16} />Install the app on a TV</button>
                 <a className={item} href="/#faq" target="_blank" rel="noreferrer" onClick={close}><Icon name="info" size={16} />Questions hosts ask</a>
                 <a className={item} href={`mailto:${BRAND.email}`} onClick={close}><Icon name="mail" size={16} />{BRAND.email}</a>
@@ -250,7 +253,6 @@ function TopBar() {
             {(close) => (
               <>
                 <p className="truncate px-3 py-2 text-xs text-ink-muted">{user?.email}</p>
-                {profile?.role === "admin" && <button className={item} onClick={() => { close(); nav("/admin"); }}><Icon name="admin" size={16} />Super admin</button>}
                 <button className={item} onClick={() => { close(); nav("/app/settings"); }}><Icon name="settings" size={16} />Settings</button>
                 <button className={item} onClick={() => { close(); nav("/app/billing"); }}><Icon name="card" size={16} />Billing</button>
                 <button className={item} onClick={async () => { close(); await signOut(); nav("/signin"); }}><Icon name="logout" size={16} />Sign out</button>
@@ -284,8 +286,31 @@ function TabBar() {
   );
 }
 
+function Paused() {
+  const { signOut } = useAuth();
+  return (
+    <div className="flex min-h-[100dvh] items-center justify-center bg-surface-wash p-4">
+      <div className="w-full max-w-md overflow-hidden rounded-lg border border-line bg-surface shadow-panel">
+        <div className="kb-kikoi" />
+        <div className="p-7 text-center">
+          <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-mint text-maroon"><Icon name="lock" size={24} /></span>
+          <h1 className="mt-4 font-display text-2xl font-semibold text-forest">Your account is paused</h1>
+          <p className="mt-2 text-ink-muted">Your TVs show a paused message until it's switched back on. Get in touch and we'll sort it out.</p>
+          <div className="mt-6 grid gap-2">
+            <a className="kb-btn kb-btn--primary kb-btn--md" href={waLink(BRAND.supportWhatsApp, "Hi! My Karibu TV account is paused.")} target="_blank" rel="noreferrer">WhatsApp support</a>
+            <a className="kb-btn kb-btn--secondary kb-btn--md" href={`mailto:${BRAND.email}`}>{BRAND.email}</a>
+            <button className="kb-btn kb-btn--ghost kb-btn--md" onClick={() => signOut()}>Sign out</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Shell() {
   const { loading } = useData();
+  const { profile } = useAuth();
+  if (profile && profile.active === false) return <Paused />;
   return (
     <div className="min-h-screen bg-surface-wash">
       <Sidebar />

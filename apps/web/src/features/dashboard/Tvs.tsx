@@ -39,7 +39,8 @@ export const OTHER_TVS: { title: string; icon: string; best?: boolean; steps: st
     "Set the TV to start on that HDMI input, so it opens Karibu TV after a power cut.",
     "Install Karibu TV on the stick with the steps above and pair it.",
   ] },
-  { title: "Amazon Fire TV Stick", icon: "bolt", steps: [
+  { title: "Amazon Fire TV Stick (2nd gen and Max)", icon: "bolt", steps: [
+    "Newer 2025-2026 Fire TV models (Select, HD 2026, 4K 2026) only install Amazon Appstore apps, so they can't run Karibu TV.",
     "Install Downloader from the Amazon Appstore.",
     "Settings > My Fire TV > Developer options > Install unknown apps: turn on for Downloader.",
     "Open Downloader, type the app address and install Karibu TV.",
@@ -221,7 +222,7 @@ export default function Tvs() {
       <AppCard />
       <Card className="p-5 sm:p-6">
         <h2 className="font-display text-xl font-semibold text-forest">Not an Android or Google TV?</h2>
-        <p className="mt-1 text-sm text-ink-muted">Karibu TV runs on Android TV, Google TV and Fire TV. For anything else, add a stick.</p>
+        <p className="mt-1 text-sm text-ink-muted">Karibu TV runs on Android TV, Google TV and Fire TV. For anything else, add a stick. <a href="/shop" className="font-semibold text-maroon underline">Buy one from our shop</a>, delivered and set up across Nairobi.</p>
         <div className="mt-5"><OtherTvs /></div>
       </Card>
       <Card className="grid gap-5 p-5 sm:p-6 md:grid-cols-[auto_1fr]">

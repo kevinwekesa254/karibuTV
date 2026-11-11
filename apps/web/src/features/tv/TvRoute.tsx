@@ -57,7 +57,7 @@ function useBurnInShift() {
 const MENU = ["Refresh", "Show pairing code", "About", "Close"];
 
 function PairedTv({ deviceKey, secret, onUnpaired }: { deviceKey: string; secret: string; onUnpaired: () => void }) {
-  const { payload, device, offline, refresh } = useScreenData(deviceKey, secret, onUnpaired);
+  const { payload, device, offline, paused, refresh } = useScreenData(deviceKey, secret, onUnpaired);
   const shift = useBurnInShift();
   const [menu, setMenu] = useState(false);
   const [about, setAbout] = useState(false);
@@ -94,6 +94,7 @@ function PairedTv({ deviceKey, secret, onUnpaired }: { deviceKey: string; secret
     return () => { window.removeEventListener("keydown", down); window.removeEventListener("keyup", up); };
   }, [menu, focus, choose]);
 
+  if (paused) return <Message text="This welcome screen is paused. Please contact your host." />;
   if (!payload) return <Message text={offline ? "Waiting for internet…" : "Welcome…"} />;
 
   const overlay = (

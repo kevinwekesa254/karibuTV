@@ -28,6 +28,7 @@ export const clearScreenCache = () => { try { localStorage.removeItem(CACHE_KEY)
 export function useScreenData(key: string, secret: string, onUnpaired: () => void) {
   const [data, setData] = useState<TvData | null>(readCache);
   const [offline, setOffline] = useState(false);
+  const [paused, setPaused] = useState(false);
   const [now, setNow] = useState(Date.now());
   const debounce = useRef<number>();
   const unpaired = useRef(onUnpaired);
@@ -36,7 +37,10 @@ export function useScreenData(key: string, secret: string, onUnpaired: () => voi
   const fetchScreen = useCallback(async () => {
     const { data: r, error } = await tvClient.rpc("tv_screen", { p_device_key: key, p_secret: secret });
     if (error) { setOffline(true); return; }
-    if ((r as { error?: string }).error) { unpaired.current(); return; }
+    const err = (r as { error?: string }).error;
+    if (err === "paused") { setPaused(true); setOffline(false); return; }   // host account paused: keep the pairing
+    if (err) { unpaired.current(); return; }
+    setPaused(false);
     setData(r as TvData);
     writeCache(r as TvData);
     setOffline(false);
@@ -87,5 +91,5 @@ export function useScreenData(key: string, secret: string, onUnpaired: () => voi
     property: data.property, stays: data.stays, plan: { pro: !!data.plan.pro }, nowMs: now, mediaUrl, restricted: data.restricted,
   }), [data, now]);
 
-  return { payload, device: data?.device, offline, refresh: fetchScreen };
+  return { payload, device: data?.device, offline, paused, refresh: fetchScreen };
 }

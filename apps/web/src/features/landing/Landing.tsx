@@ -47,7 +47,7 @@ function Section({ id, children, className = "" }: { id?: string; children: Reac
 function Header() {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
-  const links = [["How it works", "#story"], ["Features", "#features"], ["Templates", "#templates"], ["Pricing", "#pricing"], ["FAQ", "#faq"]];
+  const links = [["How it works", "#story"], ["Features", "#features"], ["Templates", "#templates"], ["Pricing", "#pricing"], ["Shop", "/shop"], ["FAQ", "#faq"]];
   return (
     <header className="sticky top-0 z-40 border-b border-line/70 bg-white/85 backdrop-blur-md">
       <div className="kb-kikoi kb-kikoi--thin" />

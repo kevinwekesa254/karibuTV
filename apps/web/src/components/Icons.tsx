@@ -21,7 +21,7 @@ const MAP: Record<string, string> = {
   sparkle: "sparkles", offline: "wifi-slash", qr: "qrcode", pin: "marker", star: "star", play: "play", globe: "globe",
   mail: "envelope", palette: "palette", clipboard: "clipboard-list", "tv-signal": "screen", search: "search",
   help: "interrogation", bell: "bell", download: "download", pencil: "pencil", bolt: "bolt", shield: "shield-check",
-  admin: "user-shield", chart: "chart-histogram", megaphone: "megaphone", user: "user", users: "users", crown: "crown", ban: "ban",
+  admin: "user-shield", chart: "chart-histogram", megaphone: "megaphone", user: "user", users: "users", crown: "crown", ban: "ban", bag: "shopping-bag", truck: "truck-side", box: "box-alt",
   // weather
   clearsky: "sun", fair: "cloud-sun", cloudy: "cloud", rain: "cloud-rain", thunder: "thunderstorm", fog: "fog",
 };

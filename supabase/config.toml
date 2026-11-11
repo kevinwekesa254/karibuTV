@@ -24,3 +24,6 @@ verify_jwt = true
 
 [functions.ai-keys]
 verify_jwt = true
+
+[functions.admin-api]
+verify_jwt = true
