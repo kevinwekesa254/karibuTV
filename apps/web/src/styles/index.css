@@ -1,0 +1,32 @@
+@import "@fontsource/inter/latin-400.css";
+@import "@fontsource/inter/latin-500.css";
+@import "@fontsource/inter/latin-600.css";
+@import "@fontsource/familjen-grotesk/latin-500.css";
+@import "@fontsource/familjen-grotesk/latin-600.css";
+@import "@fontsource/familjen-grotesk/latin-700.css";
+@import "@design/tokens.css";
+@import "@design/components.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { -webkit-text-size-adjust: 100%; }
+  body { @apply bg-surface font-sans text-ink antialiased; }
+  h1, h2, h3, h4 { @apply font-display; }
+  :focus-visible { outline: 3px solid var(--green); outline-offset: 2px; }
+  ::selection { background: var(--mint); color: var(--on-mint); }
+}
+
+.tv-fade { animation: tvfade 1s ease both; }
+@keyframes tvfade { from { opacity: 0; } to { opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .tv-fade { animation: none; }
+  * { scroll-behavior: auto !important; }
+}
+
+.pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; }

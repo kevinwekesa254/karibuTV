@@ -1,0 +1,19 @@
+node_modules/
+dist/
+.env
+.env.local
+.env.*.local
+.DS_Store
+
+# Supabase CLI local state
+supabase/.temp/
+supabase/.branches/
+
+# Android
+tv-android/.gradle/
+tv-android/build/
+tv-android/app/build/
+tv-android/local.properties
+tv-android/.idea/
+*.apk
+*.keystore

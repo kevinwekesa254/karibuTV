@@ -1,0 +1,1 @@
+-keepclassmembers class tv.karibu.app.KaribuBridge { @android.webkit.JavascriptInterface <methods>; }

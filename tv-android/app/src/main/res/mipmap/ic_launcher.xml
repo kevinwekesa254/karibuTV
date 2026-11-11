@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Pre-Android 8 fallback. Regenerate PNG mipmaps from assets/app-icons/app-icon-512.png with Image Asset when the final logo lands. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/karibu_bg" />
+    <item android:drawable="@drawable/ic_launcher_foreground" />
+</layer-list>

@@ -1,0 +1,20 @@
+# Supabase project config. The GitHub integration applies supabase/migrations on push to main
+# and deploys the Edge Functions below.
+project_id = "karibu-tv"
+
+[api]
+schemas = ["public", "graphql_public"]
+
+[auth]
+site_url = "http://localhost:5173"
+additional_redirect_urls = ["http://localhost:5173/reset", "https://karibu.tv/reset"]
+enable_signup = true
+
+[auth.email]
+enable_confirmations = false
+
+[functions.ical-sync]
+verify_jwt = true
+
+[functions.weather]
+verify_jwt = true

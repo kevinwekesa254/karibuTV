@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Karibu TV</string>
+    <string name="reconnecting">Reconnecting…</string>
+    <string name="reconnecting_hint">Checking the internet connection. The screen comes back by itself.</string>
+    <string name="overlay_title">Let Karibu TV open by itself</string>
+    <string name="overlay_body">So Karibu TV can open by itself when the TV turns on, allow “Display over other apps” on the next screen, then press Back.</string>
+    <string name="overlay_continue">Continue</string>
+    <string name="overlay_skip">Not now</string>
+    <string name="update_title">Update available</string>
+    <string name="update_body">A newer Karibu TV app is needed. In the Downloader app, open:</string>
+</resources>
