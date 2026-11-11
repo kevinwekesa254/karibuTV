@@ -70,7 +70,7 @@ export default function Bookings() {
       <OnTvNow />
       {needNames > 0 && (
         <div className="mb-5 rounded-md bg-[#fff4e5] px-4 py-3 text-sm text-[#7a4100]">
-          <b>{needNames} booking{needNames === 1 ? " needs" : "s need"} a guest name.</b> Tap a booking to add it, so the TV says “Welcome, Priya!” instead of “Welcome!”.
+          <b>{needNames} booking{needNames === 1 ? " needs" : "s need"} a guest name.</b> Tap a booking to add it, so the TV says “Welcome, Christine!” instead of “Welcome!”.
         </div>
       )}
       <Card className="overflow-hidden">

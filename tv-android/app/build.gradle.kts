@@ -3,6 +3,11 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
+// Where the release app loads the TV screen from. Override with -PKARIBU_BASE_URL=https://your-domain
+val baseUrl = (findProperty("KARIBU_BASE_URL") as String?) ?: "https://karibu-tv.vercel.app"
+val appVersionCode = ((findProperty("KARIBU_VERSION_CODE") as String?) ?: "1").toInt()
+val appVersionName = (findProperty("KARIBU_VERSION_NAME") as String?) ?: "1.0.0"
+
 android {
     namespace = "tv.karibu.app"
     compileSdk = 35
@@ -11,8 +16,22 @@ android {
         applicationId = "tv.karibu.app"
         minSdk = 24
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = appVersionCode
+        versionName = appVersionName
+    }
+
+    // Release signing from environment variables (set as GitHub secrets). Keep the same keystore forever:
+    // Android only installs updates signed with the key the app was first installed with.
+    val ks = System.getenv("KARIBU_KEYSTORE_FILE")
+    signingConfigs {
+        if (ks != null && file(ks).exists()) {
+            create("release") {
+                storeFile = file(ks)
+                storePassword = System.getenv("KARIBU_KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("KARIBU_KEY_ALIAS")
+                keyPassword = System.getenv("KARIBU_KEY_PASSWORD")
+            }
+        }
     }
 
     buildTypes {
@@ -23,10 +42,11 @@ android {
             resValue("bool", "allow_cleartext", "true")
         }
         release {
-            buildConfigField("String", "TV_URL", "\"https://karibu.tv/tv\"")
+            buildConfigField("String", "TV_URL", "\"$baseUrl/tv\"")
             // Optional JSON with {"min_app_version", "apk_url"} for update prompts; leave empty to skip.
-            buildConfigField("String", "CONFIG_URL", "\"https://karibu.tv/tv-app.json\"")
+            buildConfigField("String", "CONFIG_URL", "\"$baseUrl/tv-app.json\"")
             resValue("bool", "allow_cleartext", "false")
+            signingConfig = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }

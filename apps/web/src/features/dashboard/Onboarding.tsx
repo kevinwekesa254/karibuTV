@@ -13,6 +13,7 @@ import { PairTvForm } from "./shared/PairTvForm";
 import { WifiQrPreview } from "./shared/widgets";
 import { InstallSteps } from "./Tvs";
 import { newPropertyDefaults, phoneOk } from "./Properties";
+import { PhoneInput } from "@/components/PhoneInput";
 import { TIME_RE } from "./shared/editing";
 
 const STEPS = ["Property", "Wi-Fi", "House rules", "Pair your TV"];
@@ -135,7 +136,7 @@ function Wizard() {
     const errs = {
       name: !basics.name.trim() ? "Give your place a name, e.g. Casa Mara." : "",
       times: !TIME_RE.test(basics.checkin_time) || !TIME_RE.test(basics.checkout_time) ? "Set check-in and check-out times." : "",
-      phone: !phoneOk(basics.host_contact) ? "Use a number like +254 712 345 678." : "",
+      phone: !phoneOk(basics.host_contact) ? "Check the number after the country code." : "",
     };
     return (
       <StepShell step={0} title="Tell us about your place" subtitle="This shows at the top of the TV." saving={saving}
@@ -148,7 +149,7 @@ function Wizard() {
             <Field label="Check-in time" error={touched ? errs.times : ""}>{(id) => <Input id={id} type="time" value={basics.checkin_time} onChange={(e) => setBasics({ ...basics, checkin_time: e.target.value })} />}</Field>
             <Field label="Check-out time">{(id) => <Input id={id} type="time" value={basics.checkout_time} onChange={(e) => setBasics({ ...basics, checkout_time: e.target.value })} />}</Field>
             <Field label="Your first name" optional hint='For "Need anything? WhatsApp Amina".'>{(id, d) => <Input id={id} value={basics.host_name} onChange={(e) => setBasics({ ...basics, host_name: e.target.value })} maxLength={60} aria-describedby={d} />}</Field>
-            <Field label="WhatsApp for guests" optional error={touched ? errs.phone : ""}>{(id) => <Input id={id} type="tel" value={basics.host_contact} onChange={(e) => setBasics({ ...basics, host_contact: e.target.value })} placeholder="+254 712 345 678" />}</Field>
+            <Field label="WhatsApp for guests" optional error={touched ? errs.phone : ""}>{(id) => <PhoneInput id={id} value={basics.host_contact} country={profile?.country} onChange={(v) => setBasics({ ...basics, host_contact: v })} invalid={touched && !!errs.phone} />}</Field>
           </div>
           <div>
             <p className="kb-label">Amenities</p>

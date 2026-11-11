@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type 
 import type { Layout, ScreenPayload } from "@/lib/types";
 import { t } from "@/lib/i18n";
 import { fmtDay, fmtWeekday, tzOffset } from "@/lib/dates";
+import { cleaningSummary } from "@/lib/cleaning";
 import { qrSvg } from "@/lib/qr";
 import { AMENITIES, Icon, WhatsAppIcon, weatherIcon } from "@/components/Icons";
 import { resolveTheme, type TvTheme } from "./themes";
@@ -93,8 +94,8 @@ function WifiCard({ p, th, compact }: { p: ScreenPayload; th: TvTheme; compact?:
         <div>
           <dt style={{ color: th.muted, fontSize: 28 }}>{t("password")}</dt>
           <dd className="break-all font-semibold" style={{ fontSize: 38, fontFamily: "ui-monospace, Menlo, monospace" }}>
-            {wifi.security === "nopass" ? <span style={{ fontFamily: "Inter, sans-serif" }}>{t("open_network")}</span>
-              : wifi.password === null ? <span style={{ fontSize: 30, fontFamily: "Inter, sans-serif", fontWeight: 500 }}>{t("ask_host_password")}</span>
+            {wifi.security === "nopass" ? <span style={{ fontFamily: "Satoshi, ui-sans-serif, sans-serif" }}>{t("open_network")}</span>
+              : wifi.password === null ? <span style={{ fontSize: 30, fontFamily: "Satoshi, ui-sans-serif, sans-serif", fontWeight: 500 }}>{t("ask_host_password")}</span>
               : wifi.password}
           </dd>
         </div>
@@ -201,6 +202,8 @@ function Amenities({ p, th }: { p: ScreenPayload; th: TvTheme }) {
 function Rules({ p, th }: { p: ScreenPayload; th: TvTheme }) {
   const pr = p.property;
   const items = pr.house_rules.slice(0, 6).map((r) => ({ icon: r.icon, text: r.text }));
+  const clean = cleaningSummary(pr.cleaning);
+  if (clean) items.unshift({ icon: "broom", text: `Housekeeping ${clean}` });
   if (pr.max_guests) items.push({ icon: "guests", text: t("max_guests", { n: pr.max_guests }) });
   if (pr.quiet_start && pr.quiet_end) items.push({ icon: "quiet", text: t("quiet_hours", { from: pr.quiet_start, to: pr.quiet_end }) });
   if (!items.length) return null;
@@ -362,7 +365,7 @@ export function WelcomeScreen({ payload, shift, overlay }: { payload: ScreenPayl
 
   return (
     <Stage shift={shift} bg={th.bg}>
-      <div style={{ width: W, height: H, background: th.bg, color: th.text, fontFamily: "Inter, sans-serif", position: "relative", overflow: "hidden", ["--font-display" as string]: th.font } as CSSProperties} lang="en">
+      <div style={{ width: W, height: H, background: th.bg, color: th.text, fontFamily: "Satoshi, ui-sans-serif, sans-serif", position: "relative", overflow: "hidden", ["--font-display" as string]: th.font } as CSSProperties} lang="en">
         <div key={`${p.state}|${photo}|${layout}`} className="tv-fade absolute inset-0">
           {g.photo && (
             <div className="absolute overflow-hidden" style={{ top: 0, bottom: 0, ...g.photo }}>
@@ -389,7 +392,7 @@ export function WelcomeScreen({ payload, shift, overlay }: { payload: ScreenPayl
           {p.restricted && <div style={{ fontSize: 22, color: th.muted }}>{t("renew")}</div>}
           {p.plan.branded && <div className="flex items-center gap-2 font-display" style={{ opacity: 0.6, color: th.text, fontSize: 24, fontWeight: 600 }}><Icon name="tv" size={26} /> Karibu TV</div>}
         </div>
-        {th.stripe && <div aria-hidden className="absolute inset-x-0 bottom-0" style={{ height: 12, background: "repeating-linear-gradient(90deg, #004227 0 68px, #f26b3a 68px 92px, #f6b93b 92px 104px, #004227 104px 140px, #1f7a8c 140px 160px, #fff6e9 160px 168px, #f26b3a 168px 180px)" }} />}
+        {th.stripe && <div aria-hidden className="absolute inset-x-0 bottom-0" style={{ height: 22, background: "#17182a url(/brand/kitenge-strip.svg) repeat-x left center / auto 100%" }} />}
         {overlay}
       </div>
     </Stage>
@@ -399,10 +402,10 @@ export function WelcomeScreen({ payload, shift, overlay }: { payload: ScreenPayl
 /** The guest screen shown on the TV in a living-room photo, for previews and examples. */
 export function RoomMockup({ payload, className = "", children }: { payload: ScreenPayload; className?: string; children?: ReactNode }) {
   return (
-    <div className={`relative overflow-hidden rounded-lg bg-[#efe9df] ${className}`} style={{ aspectRatio: "1024 / 800" }}>
-      <img src="/mockups/living-room.jpg" alt="" className="absolute inset-0 h-full w-full object-cover" loading="lazy" />
-      {/* Screen area of the TV in the photo, measured in the 1024×800 crop. */}
-      <div className="absolute overflow-hidden" style={{ left: "23.15%", top: "12.6%", width: "54.1%", height: "40.8%" }}>
+    <div className={`relative overflow-hidden rounded-lg bg-[#efe9df] ${className}`} style={{ aspectRatio: "1600 / 1250" }}>
+      <img src="/mockups/living-room-close.jpg" alt="" className="absolute inset-0 h-full w-full object-cover" loading="lazy" />
+      {/* Screen area of the TV in the photo, measured in the 1600×1250 close crop. */}
+      <div className="absolute overflow-hidden" style={{ left: "15.6%", top: "6.25%", width: "69.8%", height: "52%" }}>
         <WelcomeScreen payload={payload} />
         <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(115deg, rgba(255,255,255,.07) 0%, rgba(255,255,255,0) 35%)" }} />
       </div>

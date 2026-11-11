@@ -13,7 +13,7 @@ const at = (date: string, hhmm: string) => {
 const run = (stays: { first_name: string; checkin: string; checkout: string; cancelled?: boolean }[], date: string, time: string) =>
   computeState({ stays, timezone: "Africa/Nairobi", checkoutTime: "11:00", nowMs: at(date, time) });
 
-const priya = { first_name: "Priya", checkin: "2026-11-10", checkout: "2026-11-13" };
+const priya = { first_name: "Christine", checkin: "2026-11-10", checkout: "2026-11-13" };
 const tom = { first_name: "Tom", checkin: "2026-11-13", checkout: "2026-11-15" };
 
 test("no stays → between", () => assert.equal(run([], "2026-11-10", "12:00").state, "between"));
@@ -25,7 +25,7 @@ test("check-out day until 2 h after check-out time", () => {
   assert.equal(run([priya], "2026-11-13", "13:00").state, "between");
 });
 test("back-to-back switches at check-out time", () => {
-  assert.equal(run([priya, tom], "2026-11-13", "10:59").stay?.first_name, "Priya");
+  assert.equal(run([priya, tom], "2026-11-13", "10:59").stay?.first_name, "Christine");
   assert.equal(run([priya, tom], "2026-11-13", "11:00").stay?.first_name, "Tom");
   assert.equal(run([priya, tom], "2026-11-13", "11:00").state, "arriving");
 });

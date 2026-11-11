@@ -1,11 +1,5 @@
-@import "@fontsource/inter/latin-400.css";
-@import "@fontsource/inter/latin-500.css";
-@import "@fontsource/inter/latin-600.css";
-@import "@fontsource/familjen-grotesk/latin-500.css";
-@import "@fontsource/familjen-grotesk/latin-600.css";
-@import "@fontsource/familjen-grotesk/latin-700.css";
-@import "@fontsource-variable/fraunces/index.css";
 @import "@design/tokens.css";
+@import "./fonts.css";
 @import "@design/components.css";
 
 @tailwind base;
@@ -15,7 +9,7 @@
 @layer base {
   html { -webkit-text-size-adjust: 100%; }
   body { @apply bg-surface font-sans text-ink antialiased; }
-  h1, h2, h3, h4 { @apply font-display; font-optical-sizing: auto; letter-spacing: -0.01em; }
+  h1, h2, h3, h4 { @apply font-display; letter-spacing: -0.015em; }
   .kb-sun-mark { background: var(--sun); color: var(--on-sun); }
   :focus-visible { outline: 3px solid var(--green); outline-offset: 2px; }
   ::selection { background: var(--mint); color: var(--on-mint); }

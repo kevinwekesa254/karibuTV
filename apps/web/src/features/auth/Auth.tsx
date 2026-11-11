@@ -4,6 +4,51 @@ import { supabase, errorMessage, supabaseConfigured } from "@/lib/supabase";
 import { Logo } from "@/components/Logo";
 import { Button, ErrorBanner, Field, Input, Select } from "@/components/ui";
 import { Icon } from "@/components/Icons";
+import { PhoneInput } from "@/components/PhoneInput";
+import { COUNTRIES, phoneValid, splitPhone } from "@/lib/countries";
+import { passwordProblem, passwordScore } from "@/lib/password";
+import type { CountryCode } from "@/lib/types";
+
+function StrengthBar({ pw }: { pw: string }) {
+  const s = passwordScore(pw);
+  if (!pw) return null;
+  const label = ["Weak", "Weak", "Fair", "Good", "Strong"][s];
+  return (
+    <div className="mt-2 flex items-center gap-3" aria-live="polite">
+      <div className="flex flex-1 gap-1">{[0, 1, 2, 3].map((i) => <span key={i} className={`h-1.5 flex-1 rounded-full ${i < s ? (s >= 3 ? "bg-maroon" : "bg-warning") : "bg-line"}`} />)}</div>
+      <span className="text-xs font-semibold text-ink-muted">{label}</span>
+    </div>
+  );
+}
+
+/** Second step when the account has two-step verification on. */
+function MfaStep({ onDone }: { onDone: () => void }) {
+  const [code, setCode] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const verify = async (e: FormEvent) => {
+    e.preventDefault();
+    setLoading(true); setError("");
+    try {
+      const { data: f, error: fe } = await supabase.auth.mfa.listFactors();
+      if (fe) throw fe;
+      const factor = f.totp.find((x) => x.status === "verified");
+      if (!factor) throw new Error("No authenticator app is set up on this account.");
+      const { error: ve } = await supabase.auth.mfa.challengeAndVerify({ factorId: factor.id, code: code.replace(/\s/g, "") });
+      if (ve) throw ve;
+      onDone();
+    } catch (err) { setError(errorMessage(err)); } finally { setLoading(false); }
+  };
+  return (
+    <form onSubmit={verify} className="space-y-4" noValidate>
+      {error && <ErrorBanner>{error}</ErrorBanner>}
+      <p className="text-ink-muted">Open your authenticator app (Google Authenticator, Authy, 1Password…) and type the 6-digit code for Karibu TV.</p>
+      <Field label="6-digit code">{(id) => <Input id={id} value={code} onChange={(e) => setCode(e.target.value)} inputMode="numeric" autoComplete="one-time-code" maxLength={7} autoFocus className="text-center font-display text-2xl tracking-[0.4em]" />}</Field>
+      <Button type="submit" size="lg" className="w-full" loading={loading} disabled={code.replace(/\s/g, "").length !== 6}>Verify</Button>
+      <button type="button" onClick={() => supabase.auth.signOut().then(() => window.location.reload())} className="w-full text-sm font-semibold text-ink-muted underline">Use another account</button>
+    </form>
+  );
+}
 
 function AuthShell({ title, subtitle, children, footer }: { title: string; subtitle?: ReactNode; children: ReactNode; footer?: ReactNode }) {
   return (
@@ -47,6 +92,8 @@ export function SignIn() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [mfa, setMfa] = useState(false);
+  const next = () => { const n = params.get("next") || "/app"; nav(n.startsWith("/") && !n.startsWith("//") ? n : "/app", { replace: true }); };
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
@@ -55,12 +102,15 @@ export function SignIn() {
     try {
       const { error: err } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
       if (err) throw err;
-      nav(params.get("next") || "/app", { replace: true });
+      const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+      if (aal && aal.nextLevel === "aal2" && aal.currentLevel !== "aal2") { setMfa(true); return; }
+      next();
     } catch (err) {
       setError(errorMessage(err));
     } finally { setLoading(false); }
   };
 
+  if (mfa) return <AuthShell title="Two-step verification"><MfaStep onDone={next} /></AuthShell>;
   return (
     <AuthShell title="Welcome back" subtitle="Sign in to manage your TVs and guests."
       footer={<>New to Karibu? <Link to="/signup" className="font-semibold text-green underline">Create a free account</Link></>}>
@@ -77,7 +127,7 @@ export function SignIn() {
 
 export function SignUp() {
   const nav = useNavigate();
-  const [f, setF] = useState({ name: "", email: "", whatsapp: "", country: "KE", password: "" });
+  const [f, setF] = useState({ name: "", email: "", whatsapp: "", country: "KE" as CountryCode, password: "" });
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [error, setError] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -88,8 +138,8 @@ export function SignUp() {
   const errs = {
     name: !f.name.trim() ? "Add your name so guests know who's hosting." : "",
     email: !emailOk(f.email) ? "Enter an email like amina@example.com." : "",
-    whatsapp: f.whatsapp && !/^\+?\d[\d\s-]{7,16}$/.test(f.whatsapp.trim()) ? "Use a number like +254 712 345 678." : "",
-    password: f.password.length < 8 ? "Use at least 8 characters." : "",
+    whatsapp: f.whatsapp && !phoneValid(splitPhone(f.whatsapp).country, splitPhone(f.whatsapp).local) ? "Check the number: digits after the country code, e.g. 712 345 678." : "",
+    password: passwordProblem(f.password, f.email),
   };
 
   const submit = async (e: FormEvent) => {
@@ -99,8 +149,7 @@ export function SignUp() {
     setError("");
     setLoading(true);
     try {
-      const wa = f.whatsapp.replace(/[\s-]/g, "");
-      const whatsapp = wa ? (wa.startsWith("+") ? wa : wa.startsWith("0") && f.country === "KE" ? "+254" + wa.slice(1) : "+" + wa) : "";
+      const whatsapp = f.whatsapp;
       const { data, error: err } = await supabase.auth.signUp({
         email: f.email.trim(), password: f.password,
         options: { data: { name: f.name.trim(), whatsapp, country: f.country }, emailRedirectTo: `${window.location.origin}/app` },
@@ -127,15 +176,15 @@ export function SignUp() {
         {error && <ErrorBanner>{error}</ErrorBanner>}
         <Field label="Your name" error={touched.name ? errs.name : ""}>{(id, d) => <Input id={id} value={f.name} onChange={(e) => set("name")(e.target.value)} onBlur={blur("name")} autoComplete="name" aria-describedby={d} invalid={touched.name && !!errs.name} />}</Field>
         <Field label="Email" error={touched.email ? errs.email : ""}>{(id, d) => <Input id={id} type="email" value={f.email} onChange={(e) => set("email")(e.target.value)} onBlur={blur("email")} autoComplete="email" inputMode="email" aria-describedby={d} invalid={touched.email && !!errs.email} />}</Field>
-        <div className="grid grid-cols-[1fr_7rem] gap-3">
-          <Field label="WhatsApp" optional error={touched.whatsapp ? errs.whatsapp : ""} hint="For setup help.">{(id, d) => <Input id={id} type="tel" value={f.whatsapp} onChange={(e) => set("whatsapp")(e.target.value)} onBlur={blur("whatsapp")} autoComplete="tel" inputMode="tel" placeholder="+254 712 345 678" aria-describedby={d} invalid={touched.whatsapp && !!errs.whatsapp} />}</Field>
-          <Field label="Country">{(id) => (
-            <Select id={id} value={f.country} onChange={(e) => set("country")(e.target.value)}>
-              <option value="KE">Kenya</option><option value="TZ">Tanzania</option><option value="UG">Uganda</option><option value="RW">Rwanda</option><option value="other">Other</option>
-            </Select>
-          )}</Field>
-        </div>
-        <Field label="Password" error={touched.password ? errs.password : ""} hint="At least 8 characters.">{(id, d) => <PasswordInput id={id} value={f.password} onChange={set("password")} onBlur={blur("password")} autoComplete="new-password" describedBy={d} invalid={touched.password && !!errs.password} />}</Field>
+        <Field label="Country">{(id) => (
+          <Select id={id} value={f.country} onChange={(e) => setF((x) => ({ ...x, country: e.target.value as CountryCode }))}>
+            {COUNTRIES.map((c) => <option key={c.code} value={c.code}>{c.name}</option>)}<option value="other">Other</option>
+          </Select>
+        )}</Field>
+        <Field label="WhatsApp" optional error={touched.whatsapp ? errs.whatsapp : ""} hint="For setup help. The prefix follows your country.">{(id, d) => (
+          <PhoneInput id={id} value={f.whatsapp} country={f.country} onChange={set("whatsapp")} onCountryChange={(c) => setF((x) => ({ ...x, country: c }))} describedBy={d} invalid={touched.whatsapp && !!errs.whatsapp} />
+        )}</Field>
+        <Field label="Password" error={touched.password ? errs.password : ""} hint="At least 10 characters, with letters and numbers.">{(id, d) => <><PasswordInput id={id} value={f.password} onChange={set("password")} onBlur={blur("password")} autoComplete="new-password" describedBy={d} invalid={touched.password && !!errs.password} /><StrengthBar pw={f.password} /></>}</Field>
         <Button type="submit" size="lg" className="w-full" loading={loading}>Create account</Button>
         <p className="text-center text-xs text-ink-muted">By signing up you agree to our <Link to="/terms" className="underline">Terms</Link> and <Link to="/privacy" className="underline">Privacy notice</Link>.</p>
       </form>
@@ -183,7 +232,8 @@ export function ConfirmReset() {
   const [error, setError] = useState("");
   const submit = async (e: FormEvent) => {
     e.preventDefault();
-    if (pw.length < 8) { setError("Use at least 8 characters."); return; }
+    const problem = passwordProblem(pw);
+    if (problem) { setError(problem); return; }
     setLoading(true); setError("");
     const { error: err } = await supabase.auth.updateUser({ password: pw });
     setLoading(false);
@@ -194,7 +244,7 @@ export function ConfirmReset() {
     <AuthShell title="Choose a new password">
       <form onSubmit={submit} className="space-y-4" noValidate>
         {error && <ErrorBanner action={<Link to="/reset" className="font-semibold underline">New link</Link>}>{error}</ErrorBanner>}
-        <Field label="New password" hint="At least 8 characters.">{(id, d) => <PasswordInput id={id} value={pw} onChange={setPw} autoComplete="new-password" describedBy={d} />}</Field>
+        <Field label="New password" hint="At least 10 characters, with letters and numbers.">{(id, d) => <><PasswordInput id={id} value={pw} onChange={setPw} autoComplete="new-password" describedBy={d} /><StrengthBar pw={pw} /></>}</Field>
         <Button type="submit" size="lg" className="w-full" loading={loading}>Save password</Button>
       </form>
     </AuthShell>

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="168" height="168" viewBox="0 0 168 168">
+  <!-- Larger kitenge tile for decorative panels: alternating maroon and navy bands. -->
+  <rect width="168" height="168" fill="#17182a"/>
+  <rect y="0" width="168" height="56" fill="#7a1a2e"/>
+  <g fill="none" stroke="#f6f5f9" stroke-width="5"><circle cx="28" cy="28" r="13"/><circle cx="84" cy="28" r="13"/><circle cx="140" cy="28" r="13"/></g>
+  <g fill="#f6f5f9"><rect x="10" y="66" width="5" height="36" rx="2"/><rect x="20" y="66" width="5" height="36" rx="2"/><rect x="30" y="66" width="5" height="36" rx="2"/>
+  <rect x="94" y="66" width="5" height="36" rx="2"/><rect x="104" y="66" width="5" height="36" rx="2"/><rect x="114" y="66" width="5" height="36" rx="2"/></g>
+  <polyline points="44,98 52,70 60,98 68,70 76,98 84,70" fill="none" stroke="#f6f5f9" stroke-width="5" stroke-linejoin="round"/>
+  <polyline points="128,98 136,70 144,98 152,70 160,98" fill="none" stroke="#f6f5f9" stroke-width="5" stroke-linejoin="round"/>
+  <rect y="112" width="168" height="56" fill="#7a1a2e"/>
+  <polyline points="6,154 18,126 30,154 42,126 54,154 66,126 78,154 90,126 102,154 114,126 126,154 138,126 150,154 162,126" fill="none" stroke="#f6f5f9" stroke-width="5" stroke-linejoin="round"/>
+</svg>

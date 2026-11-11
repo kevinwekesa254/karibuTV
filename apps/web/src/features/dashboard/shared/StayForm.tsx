@@ -78,7 +78,7 @@ export function StayForm({ open, onClose, onSaved, stay, properties, defaultProp
             )}</Field>
           )}
           <Field label="Guest's first name" optional hint="Only the first name is shown on the TV. Leave empty to greet without a name." error={touched ? errs.first_name : ""}>
-            {(id, d) => <Input id={id} value={f.first_name} onChange={(e) => setF({ ...f, first_name: e.target.value })} maxLength={40} autoComplete="off" placeholder="e.g. Priya" aria-describedby={d} />}
+            {(id, d) => <Input id={id} value={f.first_name} onChange={(e) => setF({ ...f, first_name: e.target.value })} maxLength={40} autoComplete="off" placeholder="e.g. Christine" aria-describedby={d} />}
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Check-in" error={touched ? errs.checkin : ""}>{(id) => <Input id={id} type="date" value={f.checkin} onChange={(e) => setF({ ...f, checkin: e.target.value, checkout: f.checkout && e.target.value >= f.checkout ? addDays(e.target.value, 1) : f.checkout })} disabled={stay?.source === "ical"} />}</Field>

@@ -27,6 +27,8 @@ const Settings = lazy(() => import("@/features/dashboard/Settings"));
 const More = lazy(() => import("@/features/dashboard/More"));
 const TvRoute = lazy(() => import("@/features/tv/TvRoute"));
 const Guide = lazy(() => import("@/features/dashboard/Guide"));
+const Insights = lazy(() => import("@/features/dashboard/Insights"));
+const AdminLayout = lazy(() => import("@/features/admin/Admin"));
 const GuestGuide = lazy(() => import("@/features/guide/GuestGuide"));
 
 function RequireAuth({ children }: { children: ReactNode }) {
@@ -72,6 +74,7 @@ export default function App() {
                 <Route path="properties/:id" element={<PropertyDetails />} />
                 <Route path="screens" element={<Screens />} />
                 <Route path="guide" element={<Guide />} />
+                <Route path="insights" element={<Insights />} />
                 <Route path="wifi" element={<Wifi />} />
                 <Route path="rules" element={<Rules />} />
                 <Route path="integrations" element={<Integrations />} />
@@ -82,6 +85,7 @@ export default function App() {
                 <Route path="settings" element={<Settings />} />
                 <Route path="more" element={<More />} />
               </Route>
+              <Route path="/admin/*" element={<RequireAuth><AdminLayout /></RequireAuth>} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </Suspense>

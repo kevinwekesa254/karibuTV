@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="112" height="28" viewBox="0 0 112 28">
+  <!-- Kitenge band after the maroon / navy-black wax print: rings, bars, zigzags. Tiles horizontally. -->
+  <rect width="112" height="28" fill="#17182a"/>
+  <rect x="0" width="34" height="28" fill="#7a1a2e"/>
+  <circle cx="17" cy="14" r="7" fill="none" stroke="#f6f5f9" stroke-width="3.4"/>
+  <circle cx="17" cy="14" r="2" fill="#e8743b" opacity=".75"/>
+  <g fill="#f6f5f9"><rect x="40" y="5" width="3" height="18" rx="1"/><rect x="46" y="5" width="3" height="18" rx="1"/><rect x="52" y="5" width="3" height="18" rx="1"/></g>
+  <rect x="60" width="52" height="28" fill="#7a1a2e"/>
+  <polyline points="64,20 70,8 76,20 82,8 88,20 94,8 100,20 106,8" fill="none" stroke="#f6f5f9" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <rect y="0" width="112" height="1.5" fill="#17182a"/><rect y="26.5" width="112" height="1.5" fill="#17182a"/>
+</svg>

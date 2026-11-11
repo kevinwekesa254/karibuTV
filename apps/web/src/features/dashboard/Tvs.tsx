@@ -32,6 +32,44 @@ export function InstallSteps() {
   );
 }
 
+/** What to do when the TV isn't Android TV / Google TV. Shared with the landing page. */
+export const OTHER_TVS: { title: string; icon: string; best?: boolean; steps: string[] }[] = [
+  { title: "Samsung, LG, Hisense VIDAA or an older TV", icon: "tv", best: true, steps: [
+    "Plug a Google TV stick into a free HDMI port: Google TV Streamer, Chromecast with Google TV or Xiaomi TV Stick (from about KES 6,000).",
+    "Set the TV to start on that HDMI input, so it opens Karibu TV after a power cut.",
+    "Install Karibu TV on the stick with the steps above and pair it.",
+  ] },
+  { title: "Amazon Fire TV Stick", icon: "bolt", steps: [
+    "Install Downloader from the Amazon Appstore.",
+    "Settings > My Fire TV > Developer options > Install unknown apps: turn on for Downloader.",
+    "Open Downloader, type the app address and install Karibu TV.",
+  ] },
+  { title: "Any smart TV with a web browser", icon: "globe", steps: [
+    `Open the TV's browser and go to ${typeof window === "undefined" ? "" : window.location.host}/tv`,
+    "The pairing code appears. Pair it here like any other TV.",
+    "Good for trying it out. It won't start by itself after a power cut, so use a stick for guests.",
+  ] },
+];
+
+export function OtherTvs({ compact }: { compact?: boolean }) {
+  return (
+    <div className={`grid gap-4 ${compact ? "" : "md:grid-cols-3"}`}>
+      {OTHER_TVS.map((t) => (
+        <div key={t.title} className={`rounded-lg border p-5 ${t.best ? "border-maroon bg-mint-soft" : "border-line bg-surface"}`}>
+          <div className="flex items-center gap-3">
+            <span className={`flex h-10 w-10 items-center justify-center rounded-md ${t.best ? "bg-maroon text-white" : "bg-surface-wash text-maroon"}`}><Icon name={t.icon} size={18} /></span>
+            <p className="font-display text-base font-semibold leading-tight text-forest">{t.title}</p>
+          </div>
+          {t.best && <p className="mt-3 text-xs font-semibold text-maroon">Best for guests</p>}
+          <ol className="mt-3 space-y-2 text-sm">
+            {t.steps.map((st, i) => <li key={i} className="flex gap-2"><span className="font-display font-semibold text-maroon">{i + 1}.</span><span>{st}</span></li>)}
+          </ol>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function Stat({ icon, value, label, tone }: { icon: string; value: number; label: string; tone: string }) {
   return (
     <Card className="flex items-center gap-4 p-5">
@@ -181,6 +219,23 @@ export default function Tvs() {
         )}
       </Card>
       <AppCard />
+      <Card className="p-5 sm:p-6">
+        <h2 className="font-display text-xl font-semibold text-forest">Not an Android or Google TV?</h2>
+        <p className="mt-1 text-sm text-ink-muted">Karibu TV runs on Android TV, Google TV and Fire TV. For anything else, add a stick.</p>
+        <div className="mt-5"><OtherTvs /></div>
+      </Card>
+      <Card className="grid gap-5 p-5 sm:p-6 md:grid-cols-[auto_1fr]">
+        <span className="flex h-12 w-12 items-center justify-center rounded-md bg-mint-soft text-maroon"><Icon name="bedroom" size={22} /></span>
+        <div>
+          <h2 className="font-display text-xl font-semibold text-forest">More than one TV in a property</h2>
+          <ul className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
+            <li className="flex gap-2"><Icon name="check" size={16} className="mt-0.5 text-maroon" />Install the app on each TV. Each one shows its own code.</li>
+            <li className="flex gap-2"><Icon name="check" size={16} className="mt-0.5 text-maroon" />Pair every code to the same property and name it by room: “Living room”, “Master bedroom”.</li>
+            <li className="flex gap-2"><Icon name="check" size={16} className="mt-0.5 text-maroon" />They all greet the same guest and update together when you change anything.</li>
+            <li className="flex gap-2"><Icon name="check" size={16} className="mt-0.5 text-maroon" />Each TV counts once on your plan. 5 or more TVs get 15% off the whole bill.</li>
+          </ul>
+        </div>
+      </Card>
       <p className="text-sm text-ink-muted">“Last opened” is when the welcome screen last started on that TV. To show another property on a TV, pick it in the Property column. {plan.maxTvs} TV{plan.maxTvs === 1 ? "" : "s"} on your plan.</p>
 
       <Modal open={pairing} onClose={close} title="Pair a TV" wide>

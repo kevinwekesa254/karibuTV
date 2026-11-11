@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { supabase } from "@/lib/supabase";
+import { supabase, mediaUrl } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth";
 import { BRAND, waLink } from "@/lib/brand";
-import { todayIn, tvStatus } from "@/lib/dates";
-import type { Calendar, Stay } from "@/lib/types";
+import { timeAgo, todayIn, tvStatus } from "@/lib/dates";
+import type { Calendar, HostNotification, Stay } from "@/lib/types";
 import { Logo } from "@/components/Logo";
 import { Icon } from "@/components/Icons";
 import { PageLoader } from "@/components/ui";
@@ -17,6 +17,7 @@ const NAV = [
   { to: "/app/bookings", label: "Bookings", icon: "calendar" },
   { to: "/app/screens", label: "TV Screens", icon: "tv" },
   { to: "/app/guide", label: "Guide & Extras", icon: "pin" },
+  { to: "/app/insights", label: "Insights", icon: "chart" },
   { to: "/app/wifi", label: "Wi-Fi & QR Code", icon: "wifi" },
   { to: "/app/rules", label: "House Rules", icon: "clipboard" },
   { to: "/app/integrations", label: "Integrations", icon: "link" },
@@ -29,38 +30,38 @@ const TABS = [
   { to: "/app/bookings", label: "Bookings", icon: "calendar" },
   { to: "/app/screens", label: "Screens", icon: "tv" },
   { to: "/app/tvs", label: "TVs", icon: "tv-signal" },
-  { to: "/app/more", label: "More", icon: "more", match: ["/app/more", "/app/guide", "/app/properties", "/app/wifi", "/app/rules", "/app/integrations", "/app/billing", "/app/settings"] },
+  { to: "/app/more", label: "More", icon: "more", match: ["/app/more", "/app/guide", "/app/insights", "/app/properties", "/app/wifi", "/app/rules", "/app/integrations", "/app/billing", "/app/settings"] },
 ];
 
 function Sidebar() {
   const { plan } = useAuth();
   return (
-    <aside className="fixed inset-y-0 left-0 hidden w-64 flex-col overflow-y-auto bg-[#0b2a1c] text-[#fff6e9] lg:flex">
+    <aside className="fixed inset-y-0 left-0 hidden w-64 flex-col overflow-y-auto bg-navy text-bone lg:flex">
       <div className="kb-kikoi kb-kikoi--thin" />
       <div className="px-6 py-6"><Logo to="/app" light /></div>
       <nav className="space-y-0.5 px-3" aria-label="Main">
         {NAV.map((n) => (
           <NavLink key={n.to} to={n.to} end={n.end}
-            className={({ isActive }) => `flex items-center gap-3 rounded-full px-4 py-2.5 text-[0.9375rem] font-semibold transition-colors ${isActive ? "bg-sun text-on-sun shadow-[0_6px_20px_-8px_rgba(242,107,58,.8)]" : "text-[#fff6e9]/80 hover:bg-white/10 hover:text-[#fff6e9]"}`}>
+            className={({ isActive }) => `flex items-center gap-3 rounded-full px-4 py-2.5 text-[0.9375rem] font-semibold transition-colors ${isActive ? "bg-maroon text-white shadow-[0_8px_24px_-10px_rgba(122,26,46,.9)]" : "text-bone/75 hover:bg-white/10 hover:text-bone"}`}>
             <Icon name={n.icon} />{n.label}
           </NavLink>
         ))}
       </nav>
       <div className="mt-auto p-3">
         <Link to="/app/screens" className="group relative block overflow-hidden rounded-lg">
-          <img src="/templates/coast.jpg" alt="" className="h-40 w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+          <img src="/mockups/living-room-close.jpg" alt="" className="h-40 w-full object-cover object-[50%_25%] transition-transform duration-500 group-hover:scale-105" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
           <div className="absolute inset-x-4 bottom-4 text-white">
             <p className="font-display text-lg font-semibold leading-tight">Create a memorable guest experience</p>
-            <span className="mt-2 block h-1 w-10 rounded-full bg-sun" />
+            <span className="kb-kikoi kb-kikoi--thin mt-2 block w-16 rounded-sm" />
           </div>
         </Link>
         <div className="mt-3 flex items-center justify-between rounded-md bg-white/10 px-4 py-3">
           <div>
             <p className="text-sm font-semibold">{plan.trial ? "Pro trial" : plan.pro ? "Pro plan" : "Free plan"}</p>
-            <p className="text-xs text-[#fff6e9]/70">{plan.trial ? `${plan.daysLeft} days left` : plan.pro ? `${plan.maxTvs} TV${plan.maxTvs > 1 ? "s" : ""}` : "1 TV · 1 property"}</p>
+            <p className="text-xs text-bone/70">{plan.trial ? `${plan.daysLeft} days left` : plan.pro ? `${plan.maxTvs} TV${plan.maxTvs > 1 ? "s" : ""}` : "1 TV · 1 property"}</p>
           </div>
-          {plan.pro ? <span className="rounded-full bg-sun px-2 py-0.5 text-xs font-bold text-on-sun">PRO</span> : <Link to="/app/billing" className="text-sm font-semibold text-sun underline">Upgrade</Link>}
+          {plan.pro ? <span className="rounded-full bg-maroon px-2 py-0.5 text-xs font-bold text-white">PRO</span> : <Link to="/app/billing" className="text-sm font-semibold text-sun underline">Upgrade</Link>}
         </div>
       </div>
     </aside>
@@ -127,6 +128,32 @@ function Search() {
 
 interface Note { icon: string; text: string; to: string; tone?: "danger" | "warning" }
 
+/** Messages from the Karibu TV team (sent from super admin), newest first, with read state. */
+function useTeamMessages() {
+  const { user } = useAuth();
+  const [items, setItems] = useState<(HostNotification & { read: boolean })[]>([]);
+  const load = useCallback(async () => {
+    if (!user) return;
+    const [{ data: n }, { data: r }] = await Promise.all([
+      supabase.from("host_notifications").select("*").order("created_at", { ascending: false }).limit(20),
+      supabase.from("notification_reads").select("notification_id"),
+    ]);
+    const read = new Set(((r as { notification_id: string }[]) || []).map((x) => x.notification_id));
+    setItems(((n as HostNotification[]) || []).map((x) => ({ ...x, read: read.has(x.id) })));
+  }, [user]);
+  useEffect(() => {
+    load();
+    const ch = supabase.channel("host-notifications").on("postgres_changes", { event: "INSERT", schema: "public", table: "host_notifications" }, () => load()).subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [load]);
+  const markRead = async (ids: string[]) => {
+    if (!ids.length) return;
+    setItems((xs) => xs.map((x) => (ids.includes(x.id) ? { ...x, read: true } : x)));
+    await supabase.from("notification_reads").upsert(ids.map((notification_id) => ({ notification_id })), { onConflict: "user_id,notification_id", ignoreDuplicates: true });
+  };
+  return { items, markRead };
+}
+
 function useNotifications(): Note[] {
   const { devices, properties, staysVersion } = useData();
   const { plan } = useAuth();
@@ -167,6 +194,8 @@ function TopBar() {
   const { user, profile, signOut } = useAuth();
   const nav = useNavigate();
   const notes = useNotifications();
+  const team = useTeamMessages();
+  const unread = team.items.filter((x) => !x.read);
   const name = profile?.name || user?.email || "Host";
   const item = "flex w-full items-center gap-2 rounded px-3 py-2 text-left text-sm hover:bg-mint-soft";
   return (
@@ -185,23 +214,43 @@ function TopBar() {
               </>
             )}
           </Popover>
-          <Popover label={`Notifications${notes.length ? `, ${notes.length} new` : ""}`} button={<span className="relative"><Icon name="bell" />{notes.length > 0 && <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-surface-wash bg-danger" />}</span>}>
-            {(close) => notes.length ? notes.map((n, i) => (
-              <button key={i} className={item} onClick={() => { close(); nav(n.to); }}>
-                <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${n.tone === "danger" ? "bg-danger/10 text-danger" : n.tone === "warning" ? "bg-warning/10 text-warning" : "bg-mint-soft text-forest"}`}><Icon name={n.icon} size={16} /></span>
-                {n.text}
-              </button>
-            )) : <p className="px-3 py-4 text-sm text-ink-muted">You're all caught up.</p>}
+          <Popover label={`Notifications${notes.length + unread.length ? `, ${notes.length + unread.length} new` : ""}`} button={<span className="relative"><Icon name="bell" />{notes.length + unread.length > 0 && <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-maroon px-1 text-[10px] font-bold text-white">{notes.length + unread.length}</span>}</span>}>
+            {(close) => (
+              <div className="max-h-[70vh] overflow-y-auto">
+                {team.items.length > 0 && (
+                  <>
+                    <div className="flex items-center justify-between px-3 pb-1 pt-2"><p className="text-xs font-semibold text-ink-muted">From the Karibu TV team</p>
+                      {unread.length > 0 && <button className="text-xs font-semibold text-maroon underline" onClick={() => team.markRead(unread.map((x) => x.id))}>Mark all read</button>}</div>
+                    {team.items.slice(0, 6).map((m) => (
+                      <button key={m.id} className={`${item} items-start`} onClick={() => { team.markRead([m.id]); if (m.link) { close(); if (m.link.startsWith("/")) nav(m.link); else window.open(m.link, "_blank", "noopener"); } }}>
+                        <span className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${m.tone === "success" ? "bg-[#e7f6ec] text-[#1a7f43]" : m.tone === "warning" ? "bg-warning/10 text-warning" : "bg-mint text-maroon"}`}><Icon name="megaphone" size={15} /></span>
+                        <span className="min-w-0 flex-1"><span className={`block ${m.read ? "" : "font-semibold"}`}>{m.title}</span>{m.body && <span className="block text-xs text-ink-muted">{m.body}</span>}<span className="mt-0.5 block text-[11px] text-ink-muted">{timeAgo(m.created_at)}</span></span>
+                        {!m.read && <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-maroon" aria-label="Unread" />}
+                      </button>
+                    ))}
+                    {notes.length > 0 && <div className="my-1 border-t border-line" />}
+                  </>
+                )}
+                {notes.length ? notes.map((n, i) => (
+                  <button key={i} className={item} onClick={() => { close(); nav(n.to); }}>
+                    <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${n.tone === "danger" ? "bg-danger/10 text-danger" : n.tone === "warning" ? "bg-warning/10 text-warning" : "bg-mint-soft text-forest"}`}><Icon name={n.icon} size={16} /></span>
+                    {n.text}
+                  </button>
+                )) : !team.items.length ? <p className="px-3 py-4 text-sm text-ink-muted">You're all caught up.</p> : null}
+              </div>
+            )}
           </Popover>
           <span className="mx-1 hidden h-8 w-px bg-line sm:block" />
           <Popover label="Account menu" button={<>
-            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-sun font-display font-semibold text-on-sun">{name[0].toUpperCase()}</span>
-            <span className="hidden text-left sm:block"><span className="block max-w-[10rem] truncate leading-tight">{name}</span><span className="block text-xs font-normal text-ink-muted">Host</span></span>
+            {profile?.avatar ? <img src={mediaUrl(profile.avatar)} alt="" className="h-9 w-9 rounded-full object-cover" />
+              : <span className="flex h-9 w-9 items-center justify-center rounded-full bg-maroon font-display font-semibold text-white">{name[0].toUpperCase()}</span>}
+            <span className="hidden text-left sm:block"><span className="block max-w-[10rem] truncate leading-tight">{name}</span><span className="block text-xs font-normal text-ink-muted">{profile?.business_name || (profile?.role === "admin" ? "Admin" : "Host")}</span></span>
             <Icon name="chevron-down" size={16} className="hidden sm:block" />
           </>}>
             {(close) => (
               <>
                 <p className="truncate px-3 py-2 text-xs text-ink-muted">{user?.email}</p>
+                {profile?.role === "admin" && <button className={item} onClick={() => { close(); nav("/admin"); }}><Icon name="admin" size={16} />Super admin</button>}
                 <button className={item} onClick={() => { close(); nav("/app/settings"); }}><Icon name="settings" size={16} />Settings</button>
                 <button className={item} onClick={() => { close(); nav("/app/billing"); }}><Icon name="card" size={16} />Billing</button>
                 <button className={item} onClick={async () => { close(); await signOut(); nav("/signin"); }}><Icon name="logout" size={16} />Sign out</button>

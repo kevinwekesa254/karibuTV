@@ -28,10 +28,11 @@ export function samplePayload(over: Omit<Partial<ScreenPayload>, "property"> & {
         { title: "Kongo River mouth", note: "Quiet beach at sunset", url: "" },
       ],
       extras: [{ title: "Airport transfer", price: "KES 3,500" }, { title: "Late check-out", price: "KES 2,000" }],
+      cleaning: [{ day: "tue", time: "10:00", note: "Fresh towels and bedding" }, { day: "fri", time: "10:00", note: "" }],
       ...property,
     },
     wifi: { ssid: "CasaMara_5G", password: "karibu2026", security: "WPA", qr_string: "WIFI:T:WPA;S:CasaMara_5G;P:karibu2026;;" },
-    stay: { first_name: "Priya", checkin: t, checkout: addDays(t, 3), nights: 3 },
+    stay: { first_name: "Christine", checkin: t, checkout: addDays(t, 3), nights: 3 },
     weather: {
       place: "Diani Beach", today: { temp_c: 29, symbol: "fair" },
       days: [1, 2, 3].map((n, i) => ({ date: addDays(t, n), min_c: 24 + (i % 2), max_c: 30 + i, symbol: ["clearsky", "partlycloudy", "rainshowers"][i] })),

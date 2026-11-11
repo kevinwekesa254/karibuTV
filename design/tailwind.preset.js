@@ -11,7 +11,7 @@ module.exports = {
       colors: Object.fromEntries([
         "mint", "mint-soft", "on-mint", "forest", "green", "ink", "on-ink", "ink-muted",
         "surface", "surface-wash", "line", "line-strong", "cream", "danger", "warning",
-        "sun", "sun-soft", "on-sun", "sun-ink", "gold", "ocean",
+        "sun", "sun-soft", "on-sun", "sun-ink", "gold", "ocean", "maroon", "maroon-deep", "navy", "bone", "ember",
       ].map((n) => [n, c(n)])),
       borderRadius: {
         sm: v("radius-sm"), md: v("radius-md"), lg: v("radius-lg"),

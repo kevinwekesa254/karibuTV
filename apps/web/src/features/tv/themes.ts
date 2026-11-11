@@ -9,8 +9,8 @@ export interface TvTheme {
   stripe: boolean;
 }
 
-export const SERIF = '"Fraunces Variable", Fraunces, Georgia, serif';
-export const GROTESK = '"Familjen Grotesk", ui-sans-serif, system-ui, sans-serif';
+export const DISPLAY = '"Clash Display", ui-sans-serif, system-ui, sans-serif';
+const SERIF = DISPLAY, GROTESK = DISPLAY; // one headline family across all themes
 
 function hexToRgb(h: string) {
   const m = /^#?([0-9a-f]{6})$/i.exec((h || "").trim());
@@ -40,7 +40,7 @@ function make(key: string, label: string, bg: string, accent: string, font = GRO
 }
 
 export const THEMES: Record<string, TvTheme> = {
-  karibu: { ...make("karibu", "Karibu", "#0c1f16", "#ff8a5c", SERIF, true), text: "#fff6e9", muted: "#b5c4b9", panel: "#11291d", panelLine: "#24402f", chip: "#173a28" },
+  karibu: { ...make("karibu", "Kitenge", "#17182a", "#f3b0bd", SERIF, true), text: "#f6f5f9", muted: "#b9b9c9", panel: "#3a1323", panelLine: "#5b2235", chip: "#262640", onAccent: "#17182a" },
   coast: make("coast", "Coast", "#07303a", "#ffb870", SERIF, true),
   safari: make("safari", "Safari Lodge", "#26180d", "#f2a541", SERIF, true),
   city: make("city", "City", "#121419", "#ff6b3d", GROTESK, true),

@@ -3,8 +3,8 @@ export const BRAND = {
   name: "Karibu TV",
   short: "Karibu",
   domain: "karibu.tv",
-  supportWhatsApp: "+254700000000", // TODO: real sales/support number
-  email: "hello@karibu.tv",
+  supportWhatsApp: "+254711855263",
+  email: "connect@mrserengeti.com",
 };
 
 export const appUrl = () => (typeof window !== "undefined" ? window.location.origin : `https://${BRAND.domain}`);

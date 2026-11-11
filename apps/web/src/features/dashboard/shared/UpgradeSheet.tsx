@@ -1,6 +1,7 @@
+import { formatMoney, quote } from "@/lib/pricing";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
-import { useConfig } from "@/lib/config";
+
 import { BRAND, waLink } from "@/lib/brand";
 import { Icon, WhatsAppIcon } from "@/components/Icons";
 import { Modal } from "@/components/ui";
@@ -14,16 +15,14 @@ export const PRO_FEATURES = [
   { icon: "clearsky", text: "Weather for today and the next 3 days" },
 ];
 
-export function priceLine(country: string | undefined, prices: { KES: { month: number; year: number }; USD: { month: number; year: number } }) {
-  return country === "KE" || !country
-    ? `KES ${prices.KES.month.toLocaleString()} per TV / month`
-    : `US$${prices.USD.month} per TV / month`;
+export function priceLine(country: string | undefined) {
+  const c = country === "KE" || !country ? "KES" : "USD";
+  return `${formatMoney(quote(1, 1, c).unit, c)} per TV / month for 3 months, then ${formatMoney(quote(1, 4, c).unit, c)}`;
 }
 
 export function UpgradeSheet() {
   const { upgradeReason, closeUpgrade } = useData();
   const { user, profile } = useAuth();
-  const cfg = useConfig();
   const wa = BRAND.supportWhatsApp;
   return (
     <Modal open={!!upgradeReason} onClose={closeUpgrade} title="Upgrade to Pro">
@@ -36,8 +35,8 @@ export function UpgradeSheet() {
           </li>
         ))}
       </ul>
-      <p className="mt-5 font-display text-xl font-semibold text-forest">{priceLine(profile?.country, cfg.prices)}</p>
-      {cfg.founding_offer.active && <p className="text-sm text-green">{cfg.founding_offer.label}</p>}
+      <p className="mt-5 font-display text-xl font-semibold text-forest">{priceLine(profile?.country)}</p>
+      <p className="text-sm text-maroon">5 or more TVs: 15% off the whole bill.</p>
       <div className="mt-5 rounded-md bg-surface-wash p-4 text-sm text-ink">
         In-app payment (M-Pesa and card) is coming soon. To upgrade today, message us on WhatsApp and we'll switch your account on.
       </div>

@@ -81,7 +81,7 @@ export function PairingScreen({ deviceKey, onPaired }: { deviceKey: string; onPa
 
   return (
     <Stage bg={th.bg}>
-      <div style={{ width: 1920, height: 1080, background: th.bg, color: th.text, padding: 96, fontFamily: "Inter, sans-serif" }} className="relative flex flex-col">
+      <div style={{ width: 1920, height: 1080, background: th.bg, color: th.text, padding: 96, fontFamily: "Satoshi, ui-sans-serif, sans-serif" }} className="relative flex flex-col">
         <div className="flex items-center gap-4 font-display" style={{ fontSize: 40, fontWeight: 600 }}>
           <span className="flex items-center justify-center" style={{ width: 64, height: 64, borderRadius: 18, background: th.accent, color: th.onAccent }}><Icon name="tv" size={36} strokeWidth={2.2} /></span>
           {BRAND.name}

@@ -5,10 +5,20 @@ export type ThemeName = "karibu" | "maroon" | "midnight" | "teal" | "forest" | "
 export type Provider = "airbnb" | "booking" | "vrbo" | "google" | "ical" | "pms";
 
 export interface Profile {
-  id: string; name: string; whatsapp: string; country: "KE" | "TZ" | "UG" | "RW" | "other";
+  id: string; name: string; whatsapp: string; country: CountryCode;
   plan: PlanName; plan_until: string | null; pro_tvs: number; trial: boolean;
   onboarding: { step?: number; done?: boolean; property?: string };
+  role: "host" | "admin"; avatar: string; business_name: string; business_logo: string; sub_started_at: string | null;
   created_at: string;
+}
+
+export type CountryCode = "KE" | "TZ" | "UG" | "RW" | "BI" | "SS" | "ET" | "SO" | "CD" | "other";
+
+/** A housekeeping visit shown on the TV, e.g. Tuesday 10:00 "Fresh towels and bedding". */
+export interface Cleaning { day: "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun" | "daily"; time: string; note: string }
+
+export interface HostNotification {
+  id: string; user_id: string | null; title: string; body: string; link: string; tone: "info" | "success" | "warning"; created_at: string;
 }
 
 export interface HouseRule { icon: string; text: string }
@@ -29,6 +39,7 @@ export interface Property {
   weather_enabled: boolean; weather_place: string; weather_lat: number | null; weather_lon: number | null;
   weather_json: WeatherData | null; weather_at: string | null;
   review_url: string; picks: Pick[]; extras: Extra[]; motion: boolean;
+  cleaning: Cleaning[]; show_cleaning: boolean;
   created_at: string; updated_at: string;
 }
 
@@ -71,6 +82,7 @@ export interface ScreenPayload {
     layout: Layout; theme: string; color_bg?: string; color_accent?: string;
     photo_url: string | null; logo_url: string | null; logo_position: "header" | "wifi";
     id?: string; review_url: string; picks: Pick[]; extras: Extra[]; motion: boolean;
+    cleaning: Cleaning[];
   };
   wifi: { ssid: string; password: string | null; security: "WPA" | "WEP" | "nopass"; qr_string: string };
   stay: { first_name: string; checkin: string; checkout: string; nights: number } | null;

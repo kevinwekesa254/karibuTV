@@ -4,7 +4,8 @@ import { useParams } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { samplePayload } from "@/lib/samples";
 import { waLink } from "@/lib/brand";
-import type { Extra, Pick } from "@/lib/types";
+import type { Cleaning, Extra, Pick } from "@/lib/types";
+import { DAYS } from "@/lib/cleaning";
 import { Icon, WhatsAppIcon } from "@/components/Icons";
 import { LogoMark } from "@/components/Logo";
 import { resolveTheme } from "@/features/tv/themes";
@@ -12,13 +13,19 @@ import { resolveTheme } from "@/features/tv/themes";
 interface Guide {
   name: string; area: string; theme: string; color_bg: string; color_accent: string;
   host_name: string; host_contact: string; checkout_time: string;
-  picks: Pick[]; extras: Extra[]; review_url: string;
+  picks: Pick[]; extras: Extra[]; review_url: string; cleaning?: Cleaning[];
+}
+
+/** Anonymous tap counts for the host's Insights page. Never blocks the guest. */
+function track(property: string, kind: "view" | "pick" | "extra" | "review" | "message", item = "") {
+  if (property === "demo") return;
+  supabase.rpc("guide_track", { p_property: property, p_kind: kind, p_item: item.slice(0, 80) }).then(() => {}, () => {});
 }
 
 function demoGuide(): Guide {
   const p = samplePayload().property;
   return { name: p.name, area: p.area, theme: "coast", color_bg: "", color_accent: "", host_name: p.host_name, host_contact: p.host_contact,
-    checkout_time: p.checkout_time, picks: p.picks, extras: p.extras, review_url: p.review_url };
+    checkout_time: p.checkout_time, picks: p.picks, extras: p.extras, review_url: p.review_url, cleaning: p.cleaning };
 }
 
 const mapsLink = (pick: Pick, area: string) =>
@@ -35,6 +42,12 @@ export default function GuestGuide() {
   }, [id]);
 
   useEffect(() => { if (g) document.title = `${g.name} · Guest guide`; }, [g]);
+  useEffect(() => {
+    if (!g || id === "demo") return;
+    const k = `kb-guide-view-${id}`;
+    try { if (sessionStorage.getItem(k)) return; sessionStorage.setItem(k, "1"); } catch { /* private mode */ }
+    track(id, "view");
+  }, [g, id]);
 
   if (g === undefined) return <div className="flex min-h-screen items-center justify-center bg-[#0c1f16]"><span className="h-8 w-8 animate-spin rounded-full border-4 border-white/20 border-t-white" /></div>;
   if (g === null) {
@@ -70,7 +83,7 @@ export default function GuestGuide() {
                     <div className="min-w-0 flex-1">
                       <p className="font-semibold">{x.title}</p>
                       {x.note && <p className="text-sm" style={{ color: th.muted }}>{x.note}</p>}
-                      <a href={mapsLink(x, g.area)} target="_blank" rel="noreferrer" className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold" style={{ color: th.accent }}>
+                      <a href={mapsLink(x, g.area)} target="_blank" rel="noreferrer" onClick={() => track(id, "pick", x.title)} className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold" style={{ color: th.accent }}>
                         {x.url ? "Open link" : "Directions"}<Icon name="arrow-right" size={16} />
                       </a>
                     </div>
@@ -90,7 +103,7 @@ export default function GuestGuide() {
                 <li key={i} className="flex items-center justify-between gap-3 rounded-2xl p-4" style={{ background: th.panel, border: `1px solid ${th.panelLine}` }}>
                   <div className="min-w-0"><p className="font-semibold">{x.title}</p>{x.price && <p className="text-sm" style={{ color: th.muted }}>{x.price}</p>}</div>
                   {g.host_contact && (
-                    <a href={ask(`I'd like to request: ${x.title}${x.price ? ` (${x.price})` : ""}.`)} target="_blank" rel="noreferrer"
+                    <a href={ask(`I'd like to request: ${x.title}${x.price ? ` (${x.price})` : ""}.`)} target="_blank" rel="noreferrer" onClick={() => track(id, "extra", x.title)}
                       className="inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold" style={{ background: th.accent, color: th.onAccent }}>
                       <WhatsAppIcon size={16} />Request
                     </a>
@@ -101,14 +114,28 @@ export default function GuestGuide() {
           </section>
         )}
 
+        {(g.cleaning || []).length > 0 && (
+          <section className="mt-9">
+            <h2 className="font-display text-xl font-semibold">Housekeeping</h2>
+            <ul className="mt-4 divide-y rounded-2xl" style={{ background: th.panel, border: `1px solid ${th.panelLine}`, borderColor: th.panelLine }}>
+              {(g.cleaning || []).map((c, i) => (
+                <li key={i} className="flex items-center gap-3 p-4" style={{ borderColor: th.panelLine }}>
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full" style={{ background: th.chip, color: th.accent }}><Icon name="broom" size={17} /></span>
+                  <span className="min-w-0 flex-1"><span className="block font-semibold">{DAYS.find((d) => d.key === c.day)?.long} at {c.time}</span>{c.note && <span className="block text-sm" style={{ color: th.muted }}>{c.note}</span>}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
         <section className="mt-9 grid gap-3">
           {g.host_contact && (
-            <a href={ask("I have a question.")} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 rounded-full px-5 py-3.5 font-semibold" style={{ border: `1.5px solid ${th.panelLine}` }}>
+            <a href={ask("I have a question.")} target="_blank" rel="noreferrer" onClick={() => track(id, "message")} className="flex items-center justify-center gap-2 rounded-full px-5 py-3.5 font-semibold" style={{ border: `1.5px solid ${th.panelLine}` }}>
               <WhatsAppIcon size={18} />Message {host}
             </a>
           )}
           {g.review_url && (
-            <a href={g.review_url} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 rounded-full px-5 py-3.5 font-semibold" style={{ background: th.accent, color: th.onAccent }}>
+            <a href={g.review_url} target="_blank" rel="noreferrer" onClick={() => track(id, "review")} className="flex items-center justify-center gap-2 rounded-full px-5 py-3.5 font-semibold" style={{ background: th.accent, color: th.onAccent }}>
               <Icon name="star" size={18} />Loved your stay? Leave a review
             </a>
           )}

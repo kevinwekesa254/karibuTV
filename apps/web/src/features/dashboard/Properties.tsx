@@ -5,12 +5,14 @@ import { useAuth } from "@/lib/auth";
 import { useToast } from "@/lib/toast";
 import { TIMEZONES } from "@/lib/dates";
 import type { Property } from "@/lib/types";
+import { phoneValid, splitPhone } from "@/lib/countries";
+import { PhoneInput } from "@/components/PhoneInput";
 import { AMENITIES, Icon } from "@/components/Icons";
 import { Button, Card, ConfirmModal, EmptyState, ErrorBanner, Field, Input, Modal, PageHeader, Select } from "@/components/ui";
 import { useData } from "./data";
 import { SaveBar, Section, TIME_RE, usePropertyDraft, useSaveProperty } from "./shared/editing";
 
-export const phoneOk = (v: string) => !v || /^\+?\d[\d\s-]{7,16}$/.test(v.trim());
+export const phoneOk = (v: string) => { if (!v) return true; const sp = splitPhone(v); return phoneValid(sp.country, sp.local); };
 
 /** Defaults for a new property: sensible rules and check-out steps the host can edit. */
 export function newPropertyDefaults(name: string, area: string, hostName: string, hostContact: string) {
@@ -112,6 +114,7 @@ function DetailsEditor({ property }: { property: Property }) {
   const { draft, set, dirty, reset } = usePropertyDraft(property, ["name", "tagline", "area", "timezone", "checkin_time", "checkout_time", "amenities", "host_name", "host_contact"]);
   const { save, saving } = useSaveProperty(property);
   const { reloadProperties, selectProperty } = useData();
+  const { profile } = useAuth();
   const toast = useToast();
   const nav = useNavigate();
   const [confirm, setConfirm] = useState(false);
@@ -121,10 +124,10 @@ function DetailsEditor({ property }: { property: Property }) {
   const errs = {
     name: !draft.name.trim() ? "Give the property a name guests will recognise." : "",
     times: !TIME_RE.test(draft.checkin_time) || !TIME_RE.test(draft.checkout_time) ? "Use 24-hour times, e.g. 14:00." : "",
-    phone: !phoneOk(draft.host_contact) ? "Use a number like +254 712 345 678." : "",
+    phone: !phoneOk(draft.host_contact) ? "Check the number after the country code." : "",
   };
   const valid = !Object.values(errs).some(Boolean);
-  const onSave = () => { setTouched(true); if (valid) save({ ...draft, name: draft.name.trim(), host_contact: draft.host_contact.replace(/[\s-]/g, "") }); };
+  const onSave = () => { setTouched(true); if (valid) save({ ...draft, name: draft.name.trim(), host_contact: draft.host_contact }); };
   const del = async () => {
     setDeleting(true);
     const { error } = await supabase.from("properties").delete().eq("id", property.id);
@@ -174,7 +177,7 @@ function DetailsEditor({ property }: { property: Property }) {
         <Section icon="phone" title="Host contact" description='Guests see "Need anything? WhatsApp {name}" on the TV.'>
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Host first name" optional>{(id) => <Input id={id} value={draft.host_name} onChange={(e) => set("host_name", e.target.value)} maxLength={60} placeholder="Amina" />}</Field>
-            <Field label="WhatsApp number" optional error={touched ? errs.phone : ""}>{(id) => <Input id={id} type="tel" inputMode="tel" value={draft.host_contact} onChange={(e) => set("host_contact", e.target.value)} placeholder="+254 712 345 678" />}</Field>
+            <Field label="WhatsApp number" optional error={touched ? errs.phone : ""}>{(id) => <PhoneInput id={id} value={draft.host_contact} country={profile?.country} onChange={(v) => set("host_contact", v)} invalid={touched && !!errs.phone} />}</Field>
           </div>
         </Section>
         <Section icon="delete" title="Delete property" description="Removes its bookings, calendars and settings. Its TVs go back to the pairing screen.">

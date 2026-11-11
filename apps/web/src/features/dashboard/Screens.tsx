@@ -104,7 +104,7 @@ function Templates({ draft, onApply }: { draft: Partial<Property> & { name: stri
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {TEMPLATES.map((t) => {
           const photo = ownPhotos ? draft.photo_welcome || draft.photo_generic || "" : t.photo || "";
-          const p = samplePayload({ stay: { first_name: "Priya", checkin: "", checkout: "", nights: 3 }, property: {
+          const p = samplePayload({ stay: { first_name: "Christine", checkin: "", checkout: "", nights: 3 }, property: {
             name: draft.name, layout: t.layout, theme: t.theme, photo_url: photo ? mediaUrl(photo) : null, motion: false, picks: [], extras: [] } });
           return (
             <button key={t.key} type="button" onClick={() => onApply(t)} aria-pressed={active === t.key}
@@ -276,17 +276,20 @@ function Editor({ property }: { property: Property }) {
           ))}
         </div>
         <p className="kb-label mt-6">Colours</p>
-        <div className="flex flex-wrap gap-2">
+        <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-7">
           {allThemes.map((t) => (
             <button key={t.key} type="button" aria-pressed={theme === t.key}
               onClick={() => { set("theme", t.key as ThemeName); if (t.key === "custom" && !hexOk(draft.color_bg)) { set("color_bg", "#2a0c13"); set("color_accent", "#f2b85c"); } }}
-              className={`flex w-24 flex-col items-center gap-1.5 rounded-md border-2 px-2 py-2.5 ${theme === t.key ? "border-sun bg-sun-soft" : "border-line hover:border-line-strong"}`}>
-              <span className="flex h-9 w-14 items-center justify-end rounded-sm px-2" style={{ background: t.bg }}><span className="h-3.5 w-3.5 rounded-full" style={{ background: t.accent }} /></span>
-              <span className="text-center text-xs font-semibold leading-tight">{t.label}</span>
+              className={`group flex min-w-0 flex-col gap-2 rounded-md border-2 p-2 text-left transition-colors ${theme === t.key ? "border-maroon bg-mint-soft" : "border-line hover:border-line-strong"}`}>
+              <span className="relative flex h-14 w-full items-end overflow-hidden rounded-sm p-2" style={{ background: t.bg }}>
+                <span className="h-2 w-2/3 rounded-full" style={{ background: t.accent }} />
+                <span className="absolute right-2 top-2 h-4 w-4 rounded-full ring-2 ring-white/30" style={{ background: t.accent }} />
+              </span>
+              <span className="truncate px-0.5 text-xs font-semibold">{t.label}</span>
             </button>
           ))}
         </div>
-        <div className="mt-4 flex flex-wrap gap-3">
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:max-w-xl">
           {(["color_bg", "color_accent"] as const).map((k) => {
             const value = custom ? draft[k] : k === "color_bg" ? look.bg : look.accent;
             return (

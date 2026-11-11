@@ -103,14 +103,14 @@ export function Toggle({ checked, onChange, label, description, disabled, id }: 
   const auto = useId();
   const tid = id || auto;
   return (
-    <div className="flex items-start justify-between gap-4">
-      <div>
+    <div className="flex items-start gap-4">
+      <div className="min-w-0 flex-1">
         <label htmlFor={tid} className="text-sm font-semibold text-ink">{label}</label>
         {description && <p className="mt-0.5 text-sm text-ink-muted">{description}</p>}
       </div>
       <button id={tid} type="button" role="switch" aria-checked={checked} disabled={disabled} onClick={() => onChange(!checked)}
-        className={`relative mt-0.5 h-7 w-12 shrink-0 rounded-full transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green disabled:opacity-50 ${checked ? "bg-green" : "bg-line-strong/50"}`}>
-        <span className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform ${checked ? "translate-x-[22px]" : "translate-x-0.5"}`} />
+        className={`mt-0.5 inline-flex h-7 w-12 shrink-0 items-center rounded-full p-0.5 transition-colors duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green disabled:opacity-50 ${checked ? "bg-maroon" : "bg-line-strong/40"}`}>
+        <span aria-hidden className={`block h-6 w-6 rounded-full bg-white shadow-[0_1px_3px_rgba(23,24,42,.3)] transition-transform duration-200 ease-[cubic-bezier(.16,1,.3,1)] ${checked ? "translate-x-5" : "translate-x-0"}`} />
       </button>
     </div>
   );

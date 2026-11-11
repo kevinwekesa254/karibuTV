@@ -1,20 +1,20 @@
 /* .kb-* component classes. Tailwind is optional; these work with tokens.css alone. */
 .kb-btn { display:inline-flex; align-items:center; justify-content:center; gap:.5rem; font-family:var(--font-text); font-weight:600; border-radius:999px; border:1.5px solid transparent; transition:background-color .15s, border-color .15s, color .15s, transform .1s; cursor:pointer; white-space:nowrap; text-decoration:none; }
-.kb-btn:active { transform: translateY(1px); }
+.kb-btn:active { transform: scale(.98); }
 .kb-btn:focus-visible { outline: 3px solid var(--green); outline-offset: 2px; }
 .kb-btn[disabled] { opacity:.5; cursor:not-allowed; }
 .kb-btn--sm { font-size:.875rem; padding:.375rem .875rem; min-height:36px; }
 .kb-btn--md { font-size:.9375rem; padding:.625rem 1.25rem; min-height:44px; }
 .kb-btn--lg { font-size:1.0625rem; padding:.875rem 1.75rem; min-height:52px; }
 .kb-btn--primary { background:var(--ink); color:var(--on-ink); }
-.kb-btn--primary:hover:not([disabled]) { background:color-mix(in srgb, var(--ink) 85%, var(--green)); }
+.kb-btn--primary:hover:not([disabled]) { background:var(--maroon); }
 .kb-btn--secondary { background:transparent; color:var(--ink); border-color:var(--ink); }
 .kb-btn--secondary:hover:not([disabled]) { background:color-mix(in srgb, var(--ink) 6%, transparent); }
 .kb-btn--ghost { background:transparent; color:var(--ink); }
 .kb-btn--ghost:hover:not([disabled]) { background:color-mix(in srgb, var(--ink) 6%, transparent); }
 .kb-btn--mint { background:var(--mint); color:var(--on-mint); }
 .kb-btn--sun { background:var(--sun); color:var(--on-sun); }
-.kb-btn--sun:hover:not([disabled]) { background:color-mix(in srgb, var(--sun) 88%, #000); }
+.kb-btn--sun:hover:not([disabled]) { background:var(--maroon-deep); }
 .kb-btn--danger { background:transparent; color:var(--danger); border-color:var(--danger); }
 .kb-btn--danger:hover:not([disabled]) { background:color-mix(in srgb, var(--danger) 8%, transparent); }
 
@@ -29,13 +29,12 @@
 .kb-hint { font-size:.8125rem; color:var(--ink-muted); margin-top:.375rem; }
 .kb-error { font-size:.8125rem; color:var(--danger); margin-top:.375rem; }
 
-.kb-band { background:var(--cream); color:var(--ink); border-top:5px solid transparent; border-image:repeating-linear-gradient(90deg, var(--forest) 0 34px, var(--sun) 34px 46px, var(--gold) 46px 52px, var(--forest) 52px 70px, var(--ocean) 70px 80px) 5; }
+.kb-band { background:var(--surface-wash); color:var(--ink); }
 .kb-band--soft { background:var(--mint-soft); }
 
-/* Kikoi stripe: the Karibu signature. A thin woven-cloth band, used sparingly. */
-.kb-kikoi { height:8px; background:repeating-linear-gradient(90deg,
-  var(--forest) 0 34px, var(--sun) 34px 46px, var(--gold) 46px 52px, var(--forest) 52px 70px,
-  var(--ocean) 70px 80px, var(--cream) 80px 84px, var(--sun) 84px 90px); }
-.kb-kikoi--thin { height:5px; }
+/* Kitenge strip: the Karibu signature, after the maroon / navy wax print. Used sparingly. */
+.kb-kikoi { height:14px; background:#17182a url(/brand/kitenge-strip.svg) repeat-x left center / auto 100%; }
+.kb-kikoi--thin { height:10px; }
+.kb-kitenge-panel { background:#17182a url(/brand/kitenge-panel.svg) repeat; background-size:140px; }
 .kb-band--sun { background:var(--sun); color:var(--on-sun); }
-.kb-band--forest { background:var(--forest); color:var(--cream); }
+.kb-band--forest { background:var(--navy); color:var(--bone); }

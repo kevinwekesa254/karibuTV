@@ -73,7 +73,7 @@ export function wifiQrString(security: string, ssid: string, password: string) {
 
 export interface PlanFlags { pro: boolean }
 
-export const SAMPLE_GUEST = "Priya";
+export const SAMPLE_GUEST = "Christine";
 
 /** Build what the TV shows. `forceState` (previews) fills in a sample guest when there's no real one. */
 export function buildPayload(o: {
@@ -137,6 +137,7 @@ export function buildPayload(o: {
       picks: (Array.isArray(p.picks) ? p.picks : []).filter((x) => x && x.title).slice(0, 6),
       extras: (Array.isArray(p.extras) ? p.extras : []).filter((x) => x && x.title).slice(0, 6),
       motion: p.motion !== false,
+      cleaning: p.show_cleaning === false ? [] : (Array.isArray(p.cleaning) ? p.cleaning : []).filter((c) => c && c.day && /^\d{2}:\d{2}$/.test(c.time)).slice(0, 7),
     },
     wifi: {
       ssid: p.wifi_ssid || "",

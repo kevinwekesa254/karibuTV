@@ -1,60 +1,67 @@
-/* Karibu TV design tokens (BUILD_SPEC section 4).
-   Light is the default; add data-theme="dark" on <html> (or any element) for the TV / dark mode. */
+/* Karibu TV design tokens. Brand: maroon and navy-black kitenge on a cool off-white.
+   Token names are historical (mint, forest, sun…); the values are the kitenge palette. */
 :root {
-  --mint: #c0ffa5;
-  --mint-soft: #e8fedf;
-  --on-mint: #1b1b1b;
-  --forest: #004227;
-  --green: #006a43;
-  --ink: #1b1b1b;
+  /* Kitenge palette */
+  --maroon: #7a1a2e;
+  --maroon-deep: #4e0f1d;
+  --navy: #17182a;
+  --bone: #f6f5f9;
+  --ember: #e8743b;          /* the orange fleck in the print: pattern only, never UI */
+
+  --mint: #f3dfe4;           /* soft maroon wash for highlights */
+  --mint-soft: #faf0f2;
+  --on-mint: #17182a;
+  --forest: #4e0f1d;         /* headings */
+  --green: #7a1a2e;          /* links, focus */
+  --ink: #17182a;
   --on-ink: #ffffff;
-  --ink-muted: #696969;
+  --ink-muted: #5c5e70;
   --surface: #ffffff;
-  --surface-wash: #fbf7f0;
-  --line: #e5e7eb;
-  --line-strong: #8a8f94;
-  --cream: #fff6e9;
-  /* Sunset: the warm Karibu accent (terracotta / Kenyan sunset). */
-  --sun: #f26b3a;
-  --sun-soft: #ffeadf;
-  --on-sun: #1d0f08;
-  --sun-ink: #b23f14;
-  --gold: #f6b93b;
-  --ocean: #1f7a8c;
+  --surface-wash: #f6f5f9;
+  --line: #e7e5ec;
+  --line-strong: #8d8f9f;
+  --cream: #f6f5f9;
   --danger: #b42318;
   --warning: #b54708;
+  --sun: #7a1a2e;            /* primary action */
+  --sun-soft: #faf0f2;
+  --on-sun: #ffffff;
+  --sun-ink: #7a1a2e;
+  --gold: #e8743b;
+  --ocean: #17182a;
 
-  --radius-sm: 12px;
-  --radius-md: 16px;
-  --radius-lg: 24px;
-  --radius-band: 48px;
-  --radius-band-xl: 80px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-band: 40px;
+  --radius-band-xl: 64px;
 
-  --font-display: "Fraunces Variable", "Fraunces", Georgia, serif;
-  --font-tv: "Familjen Grotesk", ui-sans-serif, system-ui, sans-serif;
-  --font-text: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Clash Display", ui-sans-serif, system-ui, sans-serif;
+  --font-text: "Satoshi", ui-sans-serif, system-ui, sans-serif;
+  --font-tv: "Clash Display", ui-sans-serif, system-ui, sans-serif;
 
-  --shadow-card: 0 1px 2px rgba(16, 24, 16, 0.06);
-  --shadow-panel: 0 24px 60px -20px rgba(0, 66, 39, 0.35);
+  --shadow-card: 0 1px 2px rgba(23, 24, 42, 0.06);
+  --shadow-panel: 0 30px 70px -28px rgba(78, 15, 29, 0.38);
 }
 
 [data-theme="dark"] {
-  --mint-soft: #173a28;
-  --forest: #c0ffa5;
-  --green: #7fe0a8;
-  --ink: #f2fff0;
-  --on-ink: #0c1f16;
-  --ink-muted: #a9bfb2;
-  --surface: #0c1f16;
-  --surface-wash: #10291d;
-  --line: #24402f;
-  --line-strong: #4a7d60;
-  --cream: #2a2614;
-  --sun: #ff8a5c;
-  --sun-soft: #3a1f14;
-  --on-sun: #1d0f08;
-  --sun-ink: #ffb08f;
+  --mint: #3a1621;
+  --mint-soft: #2a1119;
+  --forest: #f3dfe4;
+  --green: #f0a4b4;
+  --ink: #f6f5f9;
+  --on-ink: #17182a;
+  --ink-muted: #b4b5c4;
+  --surface: #17182a;
+  --surface-wash: #1d1e33;
+  --line: #2c2d45;
+  --line-strong: #5d5f7a;
+  --cream: #1d1e33;
   --danger: #ff9b8f;
   --warning: #fdb022;
+  --sun: #f0a4b4;
+  --sun-soft: #3a1621;
+  --on-sun: #17182a;
+  --sun-ink: #f0a4b4;
   --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
