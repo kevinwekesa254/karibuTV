@@ -7,6 +7,7 @@ import { Button, ButtonLink, Card, EmptyState, PageHeader, Spinner } from "@/com
 import { useData } from "./data";
 import { useSaveProperty } from "./shared/editing";
 import { PropertySwitcher } from "./shared/widgets";
+import { useAiKey } from "./shared/AiConnect";
 
 interface Ev { kind: "view" | "pick" | "extra" | "review" | "message"; item: string; created_at: string }
 interface Tip { title: string; detail: string }
@@ -46,6 +47,7 @@ function InsightsBody({ property }: { property: Property }) {
   const [tips, setTips] = useState<Tip[] | null>(null);
   const [ideas, setIdeas] = useState<{ picks: Pick[]; extras: Extra[] } | null>(null);
   const [busy, setBusy] = useState("");
+  const { info: aiKey } = useAiKey();
 
   useEffect(() => {
     setEvents(null);
@@ -127,12 +129,24 @@ function InsightsBody({ property }: { property: Property }) {
         </>
       )}
 
+      {aiKey === null ? (
+        <Card className="overflow-hidden">
+          <div className="kb-kikoi kb-kikoi--thin" />
+          <div className="flex flex-wrap items-center justify-between gap-4 p-5 sm:p-6">
+            <div className="max-w-xl">
+              <h2 className="flex items-center gap-2 font-display text-xl font-semibold text-forest"><Icon name="sparkle" className="text-maroon" />Get AI tips and suggestions</h2>
+              <p className="mt-1 text-sm text-ink-muted">Connect your own Claude or ChatGPT account in Settings. It runs on your account, so you control the cost.</p>
+            </div>
+            <ButtonLink to="/app/settings" icon="sparkle">Connect AI</ButtonLink>
+          </div>
+        </Card>
+      ) : (
       <Card className="overflow-hidden">
         <div className="kb-kikoi kb-kikoi--thin" />
         <div className="grid gap-6 p-5 sm:p-6 lg:grid-cols-2">
           <div>
             <h2 className="flex items-center gap-2 font-display text-xl font-semibold text-forest"><Icon name="sparkle" className="text-maroon" />AI tips for this property</h2>
-            <p className="mt-1 text-sm text-ink-muted">Claude reads your guide activity and suggests what to promote, drop or add.</p>
+            <p className="mt-1 text-sm text-ink-muted">Your AI ({aiKey?.provider === "openai" ? "ChatGPT" : "Claude"}) reads your guide activity and suggests what to promote, drop or add.</p>
             <Button className="mt-4" icon="sparkle" loading={busy === "insights"} onClick={() => ai("insights")}>{tips ? "Refresh tips" : "Get tips"}</Button>
             {tips && (
               <ol className="mt-5 space-y-3">
@@ -168,6 +182,7 @@ function InsightsBody({ property }: { property: Property }) {
           </div>
         </div>
       </Card>
+      )}
     </div>
   );
 }

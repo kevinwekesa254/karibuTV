@@ -21,6 +21,53 @@ function StrengthBar({ pw }: { pw: string }) {
   );
 }
 
+type OAuthProvider = "google" | "apple" | "facebook" | "azure";
+const OAUTH: Record<OAuthProvider, { label: string; icon: string; className: string }> = {
+  google: { label: "Google", icon: "google", className: "bg-white text-ink border-line-strong/60 hover:bg-surface-wash" },
+  apple: { label: "Apple", icon: "apple", className: "bg-[#0b0b0f] text-white border-[#0b0b0f] hover:bg-black" },
+  facebook: { label: "Facebook", icon: "facebook", className: "bg-[#1877f2] text-white border-[#1877f2] hover:bg-[#1468d6]" },
+  azure: { label: "Microsoft", icon: "microsoft", className: "bg-white text-ink border-line-strong/60 hover:bg-surface-wash" },
+};
+// Which buttons to show: only providers switched on in Supabase (Authentication > Providers).
+const ENABLED = ((import.meta.env.VITE_OAUTH_PROVIDERS as string | undefined) ?? "google,apple")
+  .split(",").map((x) => x.trim()).filter((x): x is OAuthProvider => x in OAUTH);
+
+/** "Continue with Google / Apple…". New accounts get the same 30-day Pro trial; onboarding asks for the rest. */
+function SocialButtons({ next = "/app" }: { next?: string }) {
+  const [busy, setBusy] = useState<OAuthProvider | "">("");
+  const [error, setError] = useState("");
+  if (!ENABLED.length) return null;
+  const go = async (provider: OAuthProvider) => {
+    setBusy(provider); setError("");
+    const safeNext = next.startsWith("/") && !next.startsWith("//") ? next : "/app";
+    const { error: err } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: { redirectTo: `${window.location.origin}${safeNext}`, ...(provider === "azure" ? { scopes: "email" } : {}) },
+    });
+    if (err) { setError(errorMessage(err)); setBusy(""); }
+  };
+  return (
+    <div className="space-y-3">
+      {error && <ErrorBanner>{error}</ErrorBanner>}
+      <div className="grid gap-2">
+        {ENABLED.map((p) => (
+          <button key={p} type="button" onClick={() => go(p)} disabled={!!busy}
+            className={`flex min-h-[46px] items-center justify-center gap-2.5 rounded-full border-[1.5px] px-4 text-[0.9375rem] font-semibold transition-colors disabled:opacity-60 ${OAUTH[p].className}`}>
+            <i className={`fi fi-brands-${OAUTH[p].icon} inline-flex text-[18px] leading-none`} aria-hidden />
+            {busy === p ? "Opening…" : `Continue with ${OAUTH[p].label}`}
+          </button>
+        ))}
+      </div>
+      <div className="flex items-center gap-3 text-xs font-semibold uppercase tracking-wider text-ink-muted"><span className="h-px flex-1 bg-line" />or with email<span className="h-px flex-1 bg-line" /></div>
+    </div>
+  );
+}
+
+/** Full-page code prompt, used by the app's route guard (covers Google / Apple sign-ins too). */
+export function MfaScreen({ onDone }: { onDone: () => void }) {
+  return <AuthShell title="Two-step verification"><MfaStep onDone={onDone} /></AuthShell>;
+}
+
 /** Second step when the account has two-step verification on. */
 function MfaStep({ onDone }: { onDone: () => void }) {
   const [code, setCode] = useState("");
@@ -114,6 +161,8 @@ export function SignIn() {
   return (
     <AuthShell title="Welcome back" subtitle="Sign in to manage your TVs and guests."
       footer={<>New to Karibu? <Link to="/signup" className="font-semibold text-green underline">Create a free account</Link></>}>
+      <SocialButtons next={params.get("next") || "/app"} />
+      <div className="mt-5" />
       <form onSubmit={submit} className="space-y-4" noValidate>
         {error && <ErrorBanner>{error}</ErrorBanner>}
         <Field label="Email">{(id) => <Input id={id} type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" inputMode="email" required />}</Field>
@@ -172,6 +221,8 @@ export function SignUp() {
   return (
     <AuthShell title="Start free" subtitle="30 days of Pro on us, then 1 TV and 1 property free forever. No card needed."
       footer={<>Already have an account? <Link to="/signin" className="font-semibold text-green underline">Sign in</Link></>}>
+      <SocialButtons next="/app" />
+      <div className="mt-5" />
       <form onSubmit={submit} className="space-y-4" noValidate>
         {error && <ErrorBanner>{error}</ErrorBanner>}
         <Field label="Your name" error={touched.name ? errs.name : ""}>{(id, d) => <Input id={id} value={f.name} onChange={(e) => set("name")(e.target.value)} onBlur={blur("name")} autoComplete="name" aria-describedby={d} invalid={touched.name && !!errs.name} />}</Field>

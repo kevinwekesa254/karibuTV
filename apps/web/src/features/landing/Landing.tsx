@@ -310,7 +310,7 @@ function Features() {
           <div className="h-full rounded-[24px] bg-navy p-7 text-bone">
             <Icon name="sparkle" size={24} className="text-[#f3b0bd]" />
             <h3 className="mt-5 font-display text-xl font-semibold">AI insights</h3>
-            <p className="mt-2 text-bone/70">See the most visited picks and most requested extras. Claude suggests what to promote, drop or add for your area.</p>
+            <p className="mt-2 text-bone/70">See the most visited picks and most requested extras. Connect your own Claude or ChatGPT account and get suggestions for your area.</p>
           </div>
         </Reveal>
         <Reveal delay={0.1} className="md:col-span-3">
@@ -436,7 +436,7 @@ function Pricing() {
                   : <span className="text-bone/60">Add {5 - tvs} more TV{5 - tvs > 1 ? "s" : ""} for 15% off the whole bill.</span>}
               </p>
               <ul className="mt-6 grid gap-2 text-sm text-bone/85 sm:grid-cols-2">
-                {["Calendar sync: Airbnb, Booking.com, Vrbo", "Up to 50 properties", "Your logo, no Karibu badge", "Weather on screen", "AI insights and suggestions", "Pay by M-Pesa or card"].map((x) => (
+                {["Calendar sync: Airbnb, Booking.com, Vrbo", "Up to 50 properties", "Your logo, no Karibu badge", "Weather on screen", "AI tips with your Claude or ChatGPT", "Pay by M-Pesa or card"].map((x) => (
                   <li key={x} className="flex gap-2"><Icon name="check" size={16} className="mt-0.5 text-[#f3b0bd]" />{x}</li>
                 ))}
               </ul>

@@ -61,7 +61,11 @@ export function errorMessage(err: unknown, fallback = "Something went wrong. Ple
 export async function functionError(err: unknown): Promise<{ message: string; code?: string }> {
   const ctx = (err as PgLikeError)?.context;
   if (ctx?.json) {
-    try { const b = (await ctx.json()) as { message?: string; code?: string }; if (b?.message) return { message: b.message, code: b.code }; } catch { /* ignore */ }
+    try {
+      const b = (await ctx.json()) as { message?: string; error?: string; code?: string };
+      const message = b?.message || b?.error;
+      if (message) return { message, code: b.code };
+    } catch { /* ignore */ }
   }
   return { message: errorMessage(err) };
 }

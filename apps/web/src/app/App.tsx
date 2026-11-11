@@ -1,4 +1,5 @@
-import { lazy, Suspense, type ReactNode } from "react";
+import { lazy, Suspense, useEffect, useState, type ReactNode } from "react";
+import { supabase } from "@/lib/supabase";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/lib/auth";
 import { ToastProvider } from "@/lib/toast";
@@ -10,6 +11,7 @@ const Terms = lazy(() => import("@/features/legal/Legal").then((m) => ({ default
 const SignIn = lazy(() => import("@/features/auth/Auth").then((m) => ({ default: m.SignIn })));
 const SignUp = lazy(() => import("@/features/auth/Auth").then((m) => ({ default: m.SignUp })));
 const Reset = lazy(() => import("@/features/auth/Auth").then((m) => ({ default: m.Reset })));
+const MfaScreen = lazy(() => import("@/features/auth/Auth").then((m) => ({ default: m.MfaScreen })));
 const ConfirmReset = lazy(() => import("@/features/auth/Auth").then((m) => ({ default: m.ConfirmReset })));
 const DashboardLayout = lazy(() => import("@/features/dashboard/Layout"));
 const Dashboard = lazy(() => import("@/features/dashboard/Dashboard"));
@@ -34,8 +36,17 @@ const GuestGuide = lazy(() => import("@/features/guide/GuestGuide"));
 function RequireAuth({ children }: { children: ReactNode }) {
   const { user, ready } = useAuth();
   const loc = useLocation();
+  // Accounts with two-step verification must enter their code, however they signed in (password, Google, Apple).
+  const [aal, setAal] = useState<"checking" | "ok" | "need">("checking");
+  useEffect(() => {
+    if (!user) return;
+    supabase.auth.mfa.getAuthenticatorAssuranceLevel().then(({ data }) =>
+      setAal(data && data.nextLevel === "aal2" && data.currentLevel !== "aal2" ? "need" : "ok"));
+  }, [user]);
   if (!ready) return <PageLoader />;
   if (!user) return <Navigate to={`/signin?next=${encodeURIComponent(loc.pathname + loc.search)}`} replace />;
+  if (aal === "checking") return <PageLoader />;
+  if (aal === "need") return <Suspense fallback={<PageLoader />}><MfaScreen onDone={() => setAal("ok")} /></Suspense>;
   return <>{children}</>;
 }
 

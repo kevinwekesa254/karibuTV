@@ -81,3 +81,20 @@ GitHub builds it: **Actions > "TV app (APK)" > Run workflow**, or push a tag `tv
 Create a release keystore once (`keytool -genkeypair -v -keystore karibu.jks -alias karibu -keyalg RSA -keysize 2048 -validity 10000`)
 and add it as the `KARIBU_KEYSTORE_BASE64`, `KARIBU_KEYSTORE_PASSWORD`, `KARIBU_KEY_ALIAS`, `KARIBU_KEY_PASSWORD` secrets. Keep it safe:
 every future update must be signed with the same key.
+
+## v4: hosts' own AI accounts, Google and Apple sign-in
+
+**AI runs on each host's own account.** Hosts connect a Claude or OpenAI API key in Settings > AI assistant.
+Keys are checked, encrypted with AES-GCM in the `ai-keys` function, stored in `ai_keys` (service role only) and never sent back.
+1. Run `supabase/migrations/20261113000000_karibu_byok_oauth.sql` in the SQL Editor.
+2. `npx supabase secrets set AI_KEYS_SECRET=$(openssl rand -base64 48) --project-ref <ref>` (keep it: changing it makes stored keys unreadable).
+3. `npx supabase functions deploy ai-keys --project-ref <ref>` and `npx supabase functions deploy ai-insights --project-ref <ref>`.
+You do not need an ANTHROPIC_API_KEY of your own; remove it if you set one earlier.
+
+**Google / Apple sign-in** (Supabase > Authentication > Providers). Buttons show for the providers listed in
+`VITE_OAUTH_PROVIDERS` (default `google,apple`; also `facebook`, `azure` for Microsoft).
+- Google: Google Cloud Console > APIs & Services > Credentials > OAuth client ID (Web). Authorised redirect URI:
+  `https://<project-ref>.supabase.co/auth/v1/callback`. Paste the client ID and secret into the Google provider.
+- Apple: needs an Apple Developer account (USD 99/year). Create a Services ID with "Sign in with Apple", return URL
+  `https://<project-ref>.supabase.co/auth/v1/callback`, and a Sign in with Apple key; enter them in the Apple provider.
+- Redirect URLs (Authentication > URL Configuration) must include `https://karibu-tv.vercel.app/app`.

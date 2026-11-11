@@ -21,3 +21,6 @@ verify_jwt = true
 
 [functions.ai-insights]
 verify_jwt = true
+
+[functions.ai-keys]
+verify_jwt = true
