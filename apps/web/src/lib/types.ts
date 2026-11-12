@@ -9,6 +9,7 @@ export interface Profile {
   plan: PlanName; plan_until: string | null; pro_tvs: number; trial: boolean;
   onboarding: { step?: number; done?: boolean; property?: string };
   role: "host" | "admin"; avatar: string; business_name: string; business_logo: string; sub_started_at: string | null;
+  email_reminders?: boolean; email_marketing?: boolean;
   active?: boolean; admin_role?: "owner" | "support" | "sales" | "ops" | null;
   created_at: string;
 }

@@ -27,3 +27,7 @@ verify_jwt = true
 
 [functions.admin-api]
 verify_jwt = true
+
+[functions.send-emails]
+# Called by pg_cron with a secret from the database, not a user login.
+verify_jwt = false

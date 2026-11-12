@@ -33,6 +33,7 @@ const Insights = lazy(() => import("@/features/dashboard/Insights"));
 const Support = lazy(() => import("@/features/dashboard/Support"));
 const TicketThread = lazy(() => import("@/features/dashboard/Support").then((m) => ({ default: m.TicketThread })));
 const Shop = lazy(() => import("@/features/shop/Shop"));
+const Unsubscribe = lazy(() => import("@/features/auth/Unsubscribe"));
 const ProductPage = lazy(() => import("@/features/shop/Shop").then((m) => ({ default: m.ProductPage })));
 const Checkout = lazy(() => import("@/features/shop/Shop").then((m) => ({ default: m.Checkout })));
 const OrderConfirmed = lazy(() => import("@/features/shop/Shop").then((m) => ({ default: m.OrderConfirmed })));
@@ -83,6 +84,7 @@ export default function App() {
               <Route path="/reset/new" element={<ConfirmReset />} />
               <Route path="/tv" element={<TvRoute />} />
               <Route path="/g/:id" element={<GuestGuide />} />
+              <Route path="/unsubscribe" element={<Unsubscribe />} />
               <Route path="/shop" element={<Shop />} />
               <Route path="/shop/checkout" element={<Checkout />} />
               <Route path="/shop/order/:number" element={<OrderConfirmed />} />

@@ -178,6 +178,7 @@ export function SignIn() {
 export function SignUp() {
   const nav = useNavigate();
   const [f, setF] = useState({ name: "", email: "", whatsapp: "", country: "KE" as CountryCode, password: "" });
+  const [news, setNews] = useState(false);
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [error, setError] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -202,7 +203,7 @@ export function SignUp() {
       const whatsapp = f.whatsapp;
       const { data, error: err } = await supabase.auth.signUp({
         email: f.email.trim(), password: f.password,
-        options: { data: { name: f.name.trim(), whatsapp, country: f.country }, emailRedirectTo: `${window.location.origin}/app` },
+        options: { data: { name: f.name.trim(), whatsapp, country: f.country, marketing: news ? "true" : "false" }, emailRedirectTo: `${window.location.origin}/app` },
       });
       if (err) throw err;
       if (!data.session) { setConfirm(f.email.trim()); return; }
@@ -237,6 +238,10 @@ export function SignUp() {
           <PhoneInput id={id} value={f.whatsapp} country={f.country} onChange={set("whatsapp")} onCountryChange={(c) => setF((x) => ({ ...x, country: c }))} describedBy={d} invalid={touched.whatsapp && !!errs.whatsapp} />
         )}</Field>
         <Field label="Password" error={touched.password ? errs.password : ""} hint="At least 10 characters, with letters and numbers.">{(id, d) => <><PasswordInput id={id} value={f.password} onChange={set("password")} onBlur={blur("password")} autoComplete="new-password" describedBy={d} invalid={touched.password && !!errs.password} /><StrengthBar pw={f.password} /></>}</Field>
+        <label className="flex cursor-pointer items-start gap-3 text-sm text-ink-muted">
+          <input type="checkbox" checked={news} onChange={(e) => setNews(e.target.checked)} className="mt-0.5 h-4 w-4 shrink-0 accent-maroon" />
+          <span>Send me hosting tips and offers by email. You can stop any time.</span>
+        </label>
         <Button type="submit" size="lg" className="w-full" loading={loading}>Create account</Button>
         <p className="text-center text-xs text-ink-muted">By signing up you agree to our <Link to="/terms" className="underline">Terms</Link> and <Link to="/privacy" className="underline">Privacy notice</Link>.</p>
       </form>

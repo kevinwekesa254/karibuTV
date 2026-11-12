@@ -11,7 +11,7 @@ import { Icon } from "@/components/Icons";
 import { PhoneInput } from "@/components/PhoneInput";
 import { AiConnect } from "./shared/AiConnect";
 import { CONFIG } from "@/lib/config";
-import { Button, Card, ConfirmModal, Field, Input, PageHeader, Select, Spinner, Tag } from "@/components/ui";
+import { Button, Card, ConfirmModal, Field, Input, PageHeader, Select, Spinner, Tag, Toggle } from "@/components/ui";
 
 function Panel({ title, description, children, icon }: { title: string; description?: string; children: ReactNode; icon: string }) {
   return (
@@ -68,6 +68,29 @@ function ImageField({ label, hint, value, kind, round, onSaved }: { label: strin
           {value && <Button size="sm" variant="ghost" onClick={async () => { setBusy(true); try { await save(""); toast("Removed."); } catch (e) { toast(errorMessage(e), "error"); } finally { setBusy(false); } }}>Remove</Button>}
         </div>
       </div>
+    </div>
+  );
+}
+
+/** Which emails the host gets. Account emails (receipts, support replies) always send. */
+function EmailPrefs() {
+  const { user, profile, refreshProfile } = useAuth();
+  const toast = useToast();
+  const [busy, setBusy] = useState("");
+  if (!user || !profile) return null;
+  const set = async (k: "email_reminders" | "email_marketing", v: boolean) => {
+    setBusy(k);
+    const { error } = await supabase.from("profiles").update({ [k]: v }).eq("id", user.id);
+    setBusy("");
+    if (error) toast(errorMessage(error), "error"); else { await refreshProfile(); toast("Saved."); }
+  };
+  return (
+    <div className="space-y-5">
+      <Toggle checked={profile.email_reminders !== false} disabled={busy === "email_reminders"} onChange={(v) => set("email_reminders", v)}
+        label="Reminders" description="Trial and renewal reminders, and a heads-up when a TV has been offline for a day." />
+      <Toggle checked={!!profile.email_marketing} disabled={busy === "email_marketing"} onChange={(v) => set("email_marketing", v)}
+        label="Tips and offers" description="Occasional hosting tips, new features and shop deals. About once a month." />
+      <p className="text-xs text-ink-muted">Receipts, support replies and security emails always reach you at {user.email}.</p>
     </div>
   );
 }
@@ -238,6 +261,9 @@ export default function Settings() {
           <AiConnect />
         </Panel>}
 
+        <Panel icon="bell" title="Emails" description="Choose which emails Karibu TV sends you.">
+          <EmailPrefs />
+        </Panel>
         <Panel icon="shield" title="Two-step verification" description="A 6-digit code from your phone, on top of your password.">
           <TwoStep />
         </Panel>
