@@ -47,10 +47,10 @@ revoke all on public.email_private from anon, authenticated;
 insert into public.email_private (id, function_url)
 values (1, 'https://pkgvidowjctwpzrpztuv.supabase.co/functions/v1/send-emails')
 on conflict (id) do nothing;
-
+-- Where team alerts go: superadmin@ (customers get mail from hello@, replies and general inquiries go to connect@).
 -- Where team alerts go (Settings > Support contacts > email), falling back to connect@.
 create or replace function public.team_email() returns text
-language sql stable security definer set search_path = public as $$
+  select coalesce(nullif((select value ->> 'team_alerts' from public.app_settings where key = 'email'), ''), 'superadmin@mrserengeti.com')
   select coalesce(nullif((select value ->> 'email' from public.app_settings where key = 'support'), ''), 'connect@mrserengeti.com')
 $$;
 
