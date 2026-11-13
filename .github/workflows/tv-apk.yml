@@ -55,7 +55,7 @@ jobs:
       - name: Build
         env:
           KARIBU_KEYSTORE_PASSWORD: ${{ secrets.KARIBU_KEYSTORE_PASSWORD }}
-          KARIBU_KEY_ALIAS: ${{ secrets.KARIBU_KEY_ALIAS }}
+          KARIBU_KEY_ALIAS: ${{ secrets.KARIBU_KEY_ALIAS || 'karibu' }}
           KARIBU_KEY_PASSWORD: ${{ secrets.KARIBU_KEY_PASSWORD }}
         run: |
           gradle -p tv-android :app:assembleRelease \
