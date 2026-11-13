@@ -17,6 +17,7 @@ import { Button, ButtonLink, Field, Input, Select, Textarea } from "@/components
 import { RoomMockup, WelcomeScreen } from "@/features/tv/WelcomeScreen";
 import { OtherTvs } from "@/features/dashboard/Tvs";
 import { supabase } from "@/lib/supabase";
+import { CONFIG } from "@/lib/config";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 const TV_BRANDS = ["TCL", "Hisense", "Vitron", "Skyworth", "Syinix", "Sony", "Xiaomi", "Samsung", "LG", "other"];
@@ -47,7 +48,7 @@ function Section({ id, children, className = "" }: { id?: string; children: Reac
 function Header() {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
-  const links = [["How it works", "#story"], ["Features", "#features"], ["Templates", "#templates"], ["Pricing", "#pricing"], ["Shop", "/shop"], ["FAQ", "#faq"]];
+  const links = [["How it works", "#story"], ["Features", "#features"], ["Templates", "#templates"], ["Pricing", "#pricing"], ["Shop", "/shop"], ["TV app", "#download"], ["FAQ", "#faq"]];
   return (
     <header className="sticky top-0 z-40 border-b border-line/70 bg-white/85 backdrop-blur-md">
       <div className="kb-kikoi kb-kikoi--thin" />
@@ -383,6 +384,17 @@ function AnyTv() {
               </Reveal>
             ))}
           </ol>
+          <Reveal delay={0.2}>
+            <div id="download" className="mt-10 scroll-mt-24 rounded-[20px] border border-line bg-white p-6">
+              <p className="font-display text-lg font-semibold text-navy">Get the TV app</p>
+              <p className="mt-1 text-sm text-ink-muted">On the TV, open the browser or the Downloader app and type</p>
+              <p className="mt-2 break-all font-display text-2xl font-semibold text-maroon">{CONFIG.app_short_url.replace(/^https?:\/\//, "")}</p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <a href={CONFIG.apk_url} className="kb-btn kb-btn--primary kb-btn--md"><Icon name="download" size={18} />Download the TV app</a>
+                <Link to="/signup" className="kb-btn kb-btn--secondary kb-btn--md">Create your free account</Link>
+              </div>
+            </div>
+          </Reveal>
           <p className="mt-8 text-sm text-ink-muted">Works out of the box on Android TV, Google TV and Fire TV: TCL, Hisense, Vitron, Skyworth, Syinix, Sony, Xiaomi.</p>
         </div>
         <Reveal delay={0.1}><OtherTvs compact /></Reveal>
@@ -569,7 +581,7 @@ function Footer() {
       <div className="kb-kikoi -mx-4 sm:-mx-8" />
       <div className="mx-auto grid max-w-7xl gap-8 pt-12 sm:grid-cols-[1.5fr_1fr_1fr_1fr]">
         <div><Logo light /><p className="mt-3 text-sm text-bone/60">Welcome screens for holiday rentals across East Africa.</p></div>
-        <div className="space-y-2 text-sm"><p className="font-semibold">Product</p><a href="#features" className="block text-bone/70 hover:text-bone">Features</a><a href="#pricing" className="block text-bone/70 hover:text-bone">Pricing</a><a href="#faq" className="block text-bone/70 hover:text-bone">FAQ</a></div>
+        <div className="space-y-2 text-sm"><p className="font-semibold">Product</p><a href="#features" className="block text-bone/70 hover:text-bone">Features</a><a href="#pricing" className="block text-bone/70 hover:text-bone">Pricing</a><a href="#faq" className="block text-bone/70 hover:text-bone">FAQ</a><a href={CONFIG.apk_url} className="block text-bone/70 hover:text-bone">Download the TV app</a></div>
         <div className="space-y-2 text-sm"><p className="font-semibold">Legal</p><Link to="/privacy" className="block text-bone/70 hover:text-bone">Privacy</Link><Link to="/terms" className="block text-bone/70 hover:text-bone">Terms</Link></div>
         <div className="space-y-2 text-sm"><p className="font-semibold">Contact</p><a href={waLink(BRAND.supportWhatsApp)} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-bone/70 hover:text-bone"><WhatsAppIcon size={15} />WhatsApp</a><a href={`mailto:${BRAND.email}`} className="block text-bone/70 hover:text-bone">{BRAND.email}</a></div>
       </div>

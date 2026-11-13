@@ -42,10 +42,9 @@ const steps = (items: string[]) =>
     .map((s, i) => `<tr><td valign="top" style="padding:0 12px 12px 0"><div style="width:26px;height:26px;border-radius:13px;background:${MAROON};color:#fff;font-size:13px;font-weight:700;line-height:26px;text-align:center">${i + 1}</div></td><td style="padding:3px 0 12px;font-size:15px;line-height:1.5;color:${INK}">${s}</td></tr>`)
     .join("")}</table>`;
 
-const kitenge = () => {
-  const c = [MAROON, NAVY, GOLD, NAVY, MAROON, GOLD, NAVY, MAROON, NAVY, GOLD, MAROON, NAVY];
-  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>${c.map((x) => `<td height="6" style="height:6px;line-height:6px;font-size:0;background:${x}">&nbsp;</td>`).join("")}</tr></table>`;
-};
+// The website's kitenge band (public/brand/kitenge-strip.svg, 14px high), as a PNG because email apps don't show SVG.
+const kitenge = (app: string) =>
+  `<img src="${esc(app)}/brand/email-kitenge.png" width="560" height="14" alt="" style="display:block;width:100%;max-width:560px;height:auto;border:0">`;
 
 function layout(c: Ctx, preheader: string, body: string, unsubscribe?: string) {
   const footerWhy = c.kind === "team"
@@ -60,8 +59,8 @@ function layout(c: Ctx, preheader: string, body: string, unsubscribe?: string) {
 <div style="display:none;max-height:0;overflow:hidden;opacity:0">${esc(preheader)}</div>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${WASH}"><tr><td align="center" style="padding:24px 12px">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid ${LINE};font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif">
-<tr><td style="background:${NAVY};padding:20px 28px"><a href="${esc(c.hostApp)}" style="text-decoration:none;font-size:20px;font-weight:800;letter-spacing:-0.3px;color:#ffffff">Karibu<span style="color:${GOLD}">&nbsp;TV</span></a></td></tr>
-<tr><td>${kitenge()}</td></tr>
+<tr><td style="background:${NAVY};padding:18px 28px"><a href="${esc(c.hostApp)}" style="text-decoration:none"><img src="${esc(c.hostApp)}/brand/email-logo.png" width="160" height="40" alt="Karibu TV" style="display:block;border:0;color:#ffffff;font-size:20px;font-weight:700"></a></td></tr>
+<tr><td style="background:${NAVY};line-height:0;font-size:0">${kitenge(c.hostApp)}</td></tr>
 <tr><td style="padding:32px 28px 12px">${body}</td></tr>
 <tr><td style="padding:20px 28px 28px;border-top:1px solid ${LINE}">
 ${small(`Questions? Reply to this email or WhatsApp us on <a href="https://wa.me/${WHATSAPP.replace(/\D/g, "")}" style="color:${MAROON}">${WHATSAPP}</a>.`)}
