@@ -4,6 +4,7 @@ import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-route
 import { AuthProvider, useAuth } from "@/lib/auth";
 import { ToastProvider } from "@/lib/toast";
 import { PageLoader } from "@/components/ui";
+import { CookieBanner } from "@/components/CookieBanner";
 
 const Landing = lazy(() => import("@/features/landing/Landing"));
 const Privacy = lazy(() => import("@/features/legal/Legal").then((m) => ({ default: m.Privacy })));
@@ -112,6 +113,7 @@ export default function App() {
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </Suspense>
+          <CookieBanner />
         </ToastProvider>
       </AuthProvider>
     </BrowserRouter>

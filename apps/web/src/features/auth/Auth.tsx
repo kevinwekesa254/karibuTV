@@ -1,4 +1,5 @@
 import { useState, type FormEvent, type ReactNode } from "react";
+import { track } from "@/lib/analytics";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase, errorMessage, supabaseConfigured } from "@/lib/supabase";
 import { Logo } from "@/components/Logo";
@@ -206,6 +207,7 @@ export function SignUp() {
         options: { data: { name: f.name.trim(), whatsapp, country: f.country, marketing: news ? "true" : "false" }, emailRedirectTo: `${window.location.origin}/app` },
       });
       if (err) throw err;
+      track("sign_up", { method: "email" });
       if (!data.session) { setConfirm(f.email.trim()); return; }
       nav("/app/welcome", { replace: true });
     } catch (err) {

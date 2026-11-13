@@ -37,14 +37,11 @@ export function UpgradeSheet() {
       </ul>
       <p className="mt-5 font-display text-xl font-semibold text-forest">{priceLine(profile?.country)}</p>
       <p className="text-sm text-maroon">5 or more TVs: 15% off the whole bill.</p>
-      <div className="mt-5 rounded-md bg-surface-wash p-4 text-sm text-ink">
-        In-app payment (M-Pesa and card) is coming soon. To upgrade today, message us on WhatsApp and we'll switch your account on.
-      </div>
       <div className="mt-5 flex flex-wrap gap-2">
-        <a className="kb-btn kb-btn--primary kb-btn--md" href={waLink(wa, `Hi! I'd like to upgrade ${user?.email || "my account"} to Karibu TV Pro.`)} target="_blank" rel="noreferrer">
-          <WhatsAppIcon size={18} /> Upgrade on WhatsApp
+        <Link to="/app/billing" onClick={closeUpgrade} className="kb-btn kb-btn--primary kb-btn--md"><Icon name="card" size={18} />Upgrade: M-Pesa or card</Link>
+        <a className="kb-btn kb-btn--secondary kb-btn--md" href={waLink(wa, `Hi! I'd like to upgrade ${user?.email || "my account"} to Karibu TV Pro.`)} target="_blank" rel="noreferrer">
+          <WhatsAppIcon size={18} /> Ask on WhatsApp
         </a>
-        <Link to="/app/billing" onClick={closeUpgrade} className="kb-btn kb-btn--secondary kb-btn--md">See plans</Link>
       </div>
     </Modal>
   );

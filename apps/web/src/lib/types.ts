@@ -65,7 +65,7 @@ export interface Device {
 }
 
 export interface Payment {
-  id: string; provider: string; amount: number; currency: string; period: string; tvs: number; status: string; receipt: string; created_at: string;
+  id: string; provider: string; amount: number; currency: string; period: string; tvs: number; status: string; receipt: string; created_at: string; months?: number;
 }
 
 /** What the TV renders. Built on the TV (and in previews) from property + stays by lib/screen.ts. */

@@ -1,6 +1,7 @@
 // Karibu TV shop: streaming sticks that run the welcome-screen app, delivered across Nairobi,
 // with an optional setup visit. Orders are priced by the database (place_order), never the browser.
 import { Fragment, useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
+import { track } from "@/lib/analytics";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { supabase, errorMessage } from "@/lib/supabase";
@@ -409,8 +410,13 @@ function Disclosure({ title, children, open }: { title: string; children: ReactN
 }
 
 // ------------------------------------------------------------- checkout
+/** Paystack checkout link for an order, or null (the order page then offers to try again). */
+async function startOrderPayment(number: number, token: string): Promise<string | null> {
+  const { data } = await supabase.functions.invoke("paystack", { body: { action: "order", number, token } });
+  return (data as { url?: string } | null)?.url || null;
+}
 type Fulfilment = "delivery" | "delivery_setup";
-type Pay = "mpesa_till" | "cod" | "whatsapp";
+type Pay = "paystack" | "mpesa_till" | "cod" | "whatsapp";
 
 export function Checkout() {
   const { products, zones, settings } = useShopData();
@@ -418,7 +424,7 @@ export function Checkout() {
   const nav = useNavigate();
   const [f, setF] = useState({ name: "", phone: "", email: "", zone_id: "", address: "", note: "", mpesa_code: "" });
   const [fulfilment, setFulfilment] = useState<Fulfilment>("delivery");
-  const [pay, setPay] = useState<Pay>("mpesa_till");
+  const [pay, setPay] = useState<Pay>("paystack");
   const [touched, setTouched] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -435,6 +441,7 @@ export function Checkout() {
     phone: !phoneValid(sp.country, sp.local) ? "Add a phone number we can call." : "",
     address: f.address.trim().length < 3 ? "Tell us where to deliver." : "",
     zone: !zone ? "Choose an area." : "",
+    email: pay === "paystack" && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.email.trim()) ? "Add your email to pay online. Your receipt goes there." : "",
   };
   const valid = !Object.values(errs).some(Boolean) && rows.length > 0;
 
@@ -450,6 +457,11 @@ export function Checkout() {
       if (err) throw err;
       const o = data as { number: number; token: string; total_kes: number };
       clear();
+      track("begin_checkout", { currency: "KES", value: total, item_category: "shop", payment: pay });
+      if (pay === "paystack") {
+        const url = await startOrderPayment(o.number, o.token);
+        if (url) { window.location.href = url; return; }
+      }
       if (pay === "whatsapp") {
         const msg = `Hi! I've placed order #${o.number} on the Karibu TV shop (${kes(o.total_kes)}). ${rows.map((r) => `${r.l.qty}x ${r.p.name}`).join(", ")}. Delivery: ${zone?.name}${setup ? " with setup" : ""}.`;
         window.open(waLink(settings.whatsapp || BRAND.supportWhatsApp, msg), "_blank", "noopener");
@@ -474,7 +486,7 @@ export function Checkout() {
             <Field label="Full name" error={touched ? errs.name : ""}>{(id) => <Input id={id} value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} autoComplete="name" maxLength={80} />}</Field>
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="Phone (for delivery)" error={touched ? errs.phone : ""}>{(id) => <PhoneInput id={id} value={f.phone} onChange={(v) => setF((x) => ({ ...x, phone: v }))} invalid={touched && !!errs.phone} />}</Field>
-              <Field label="Email" optional>{(id) => <Input id={id} type="email" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} autoComplete="email" maxLength={120} />}</Field>
+              <Field label="Email" optional={pay !== "paystack"} error={touched ? errs.email : ""}>{(id) => <Input id={id} type="email" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} autoComplete="email" maxLength={120} />}</Field>
             </div>
           </section>
           <section className="space-y-4">
@@ -502,8 +514,11 @@ export function Checkout() {
           <section className="space-y-4">
             <h2 className="font-display text-lg font-semibold">Payment</h2>
             <div className="space-y-2" role="radiogroup" aria-label="Payment">
+              <button type="button" role="radio" aria-checked={pay === "paystack"} onClick={() => setPay("paystack")} className={radio(pay === "paystack")}>
+                {dot(pay === "paystack")}<span><span className="block font-semibold">Pay now: M-Pesa or card</span><span className="block text-sm text-ink-muted">Secure checkout by Paystack. Your order is confirmed straight away.</span></span>
+              </button>
               <button type="button" role="radio" aria-checked={pay === "mpesa_till"} onClick={() => setPay("mpesa_till")} className={radio(pay === "mpesa_till")}>
-                {dot(pay === "mpesa_till")}<span><span className="block font-semibold">M-Pesa (Buy Goods)</span><span className="block text-sm text-ink-muted">Pay to our till now. We confirm and dispatch.</span></span>
+                {dot(pay === "mpesa_till")}<span><span className="block font-semibold">M-Pesa to our till</span><span className="block text-sm text-ink-muted">Pay to our till now. We confirm and dispatch.</span></span>
               </button>
               {pay === "mpesa_till" && (
                 <div className="rounded-md bg-mint-soft p-4 text-sm">
@@ -540,7 +555,7 @@ export function Checkout() {
               {setup > 0 && <div className="flex justify-between"><dt className="text-ink-muted">Setup visit</dt><dd className="tabular-nums">{kes(setup)}</dd></div>}
               <div className="flex items-baseline justify-between border-t border-line pt-3"><dt className="font-semibold">Total</dt><dd className="font-display text-2xl font-semibold tabular-nums">{kes(total)}</dd></div>
             </dl>
-            <Button type="submit" size="lg" variant="sun" className="mt-6 w-full" loading={busy}>{pay === "whatsapp" ? "Place order and open WhatsApp" : "Place order"}</Button>
+            <Button type="submit" size="lg" variant="sun" className="mt-6 w-full" loading={busy}>{pay === "whatsapp" ? "Place order and open WhatsApp" : pay === "paystack" ? `Pay ${kes(total)}` : "Place order"}</Button>
             <p className="mt-3 text-center text-xs text-ink-muted">Prices include VAT. Final amount is confirmed when we receive your order.</p>
           </div>
         </aside>
@@ -558,10 +573,34 @@ export function OrderConfirmed() {
   const [params] = useSearchParams();
   const { products, settings } = useShopData();
   const [o, setO] = useState<Order | null | undefined>(undefined);
+  const [paying, setPaying] = useState(false);
+  const [checking, setChecking] = useState(!!(params.get("reference") || params.get("trxref")));
+  const token = params.get("t") || "";
+  const load = () => supabase.rpc("order_lookup", { p_number: Number(number), p_token: token }).then(({ data }) => setO((data as Order) || null));
   useEffect(() => {
-    supabase.rpc("order_lookup", { p_number: Number(number), p_token: params.get("t") || "" }).then(({ data }) => setO((data as Order) || null));
-  }, [number, params]);
-  if (o === undefined) return <ShopShell products={products || []}><PageLoader /></ShopShell>;
+    const ref = params.get("reference") || params.get("trxref");
+    if (!ref) { load(); return; }
+    // Back from Paystack: confirm with the server, then show the order.
+    (async () => {
+      for (let i = 0; i < 5; i++) {
+        const { data } = await supabase.functions.invoke("paystack", { body: { action: "verify", reference: ref } });
+        const r = data as { ok?: boolean; status?: string } | null;
+        if (r?.ok) track("purchase", { transaction_id: ref, currency: "KES", item_category: "shop" });
+        if (r?.ok || (r?.status && !["ongoing", "pending", "processing", "queued"].includes(r.status))) break;
+        await new Promise((res) => setTimeout(res, 4000));
+      }
+      setChecking(false);
+      load();
+    })();
+  }, [number, token]);
+  const payNow = async () => {
+    setPaying(true);
+    const url = await startOrderPayment(Number(number), token);
+    if (url) { window.location.href = url; return; }
+    setPaying(false);
+    alert("Payment couldn't start. Try again, or WhatsApp us.");
+  };
+  if (o === undefined || checking) return <ShopShell products={products || []}><PageLoader /></ShopShell>;
   if (o === null) return <ShopShell products={products || []}><div className="mx-auto max-w-xl px-4 py-24 text-center"><p className="font-display text-2xl font-semibold">We couldn't find that order.</p><p className="mt-2 text-ink-muted">Use the link from your confirmation, or WhatsApp us your order number.</p></div></ShopShell>;
   const stepIndex = o.status === "awaiting_payment" ? 0 : Math.max(0, STEPS.findIndex(([k]) => k === o.status));
   return (
@@ -580,6 +619,14 @@ export function OrderConfirmed() {
             ))}
           </ol>
         ) : <p className="mt-8 rounded-md bg-danger/10 p-4 font-semibold text-danger">This order was cancelled.</p>}
+        {o.payment_method === "paystack" && o.status === "awaiting_payment" && (
+          <div className="mt-8 rounded-[20px] bg-mint-soft p-6">
+            <p className="font-display text-lg font-semibold">Payment not received yet</p>
+            <p className="mt-2">Pay {kes(o.total_kes)} by M-Pesa or card to confirm your order. If you just paid, give it a minute and refresh.</p>
+            <Button className="mt-4" icon="card" loading={paying} onClick={payNow}>Pay {kes(o.total_kes)} now</Button>
+          </div>
+        )}
+        {o.payment_method === "paystack" && o.status === "paid" && <p className="mt-8 rounded-md bg-mint-soft p-4 font-semibold">Paid. We've emailed your receipt and will call you to arrange delivery.</p>}
         {o.payment_method === "mpesa_till" && o.status === "awaiting_payment" && (
           <div className="mt-8 rounded-[20px] bg-mint-soft p-6">
             <p className="font-display text-lg font-semibold">Pay with M-Pesa</p>

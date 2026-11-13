@@ -1,6 +1,7 @@
 // Landing page. Design read: product landing for East African holiday-rental hosts,
 // kitenge brand (maroon + navy on cool white), Clash Display + Satoshi. Dials: variance 7, motion 6, density 4.
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { track } from "@/lib/analytics";
 import { Link } from "react-router-dom";
 import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from "motion/react";
 import { useAuth } from "@/lib/auth";
@@ -518,6 +519,7 @@ function Contact() {
         message: f.message.trim().slice(0, 1000), source: source.slice(0, 200),
       });
       if (err) throw new Error("Couldn't send. Try WhatsApp instead.");
+      track("generate_lead", { tv_brand: f.tv_brand || "unknown" });
       setState("done");
     } catch (err) { setError((err as Error).message); setState("idle"); }
   };
