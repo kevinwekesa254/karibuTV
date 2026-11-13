@@ -13,7 +13,7 @@ export const CONFIG = {
   // The TV app download, served from our own domain by api/tv-apk.ts (no GitHub page in between).
   apk_url: (import.meta.env.VITE_APK_URL as string | undefined) || "https://tv.mrserengeti.com/tv.apk",
   app_short_url: (import.meta.env.VITE_APP_SHORT_URL as string | undefined) || "tv.mrserengeti.com/tv.apk",
-  app_version: "1.0.0",
+  app_version: "1.0.3",
 };
 export type AppConfig = typeof CONFIG;
 export const useConfig = () => CONFIG;
