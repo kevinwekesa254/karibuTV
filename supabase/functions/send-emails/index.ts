@@ -32,7 +32,7 @@ Deno.serve(async (req) => {
   const secret = req.headers.get("x-cron-secret") || "";
   if (!priv?.cron_secret || secret.length < 32 || secret !== priv.cron_secret) return json({ error: "Not allowed" }, 401);
 
-  const key = Deno.env.get("BREVO_API_KEY");
+  const key = (Deno.env.get("BREVO_API_KEY") || Deno.env.get("BREVO-API_KEY") || "").trim();
   if (!key) return json({ ok: false, reason: "BREVO_API_KEY is not set; emails stay queued." });
 
   const since = new Date(); since.setUTCHours(0, 0, 0, 0);
