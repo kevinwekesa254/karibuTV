@@ -13,7 +13,7 @@ export interface Ctx {
 export interface Rendered { subject: string; html: string; text: string; unsubscribe?: string }
 
 const MAROON = "#7a1a2e", NAVY = "#17182a", GOLD = "#d9a441", INK = "#1d1e2c", MUTED = "#5d6070", LINE = "#e6e3df", WASH = "#f6f4f1";
-const WHATSAPP = "+254711855263";
+const WHATSAPP = "+254716855263";
 
 export const esc = (v: unknown) =>
   String(v ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");

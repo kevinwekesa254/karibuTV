@@ -38,3 +38,8 @@
 .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { scrollbar-width: none; }
+
+/* New-notification bell: a short, gentle wiggle. */
+.kb-ring { animation: kbring 1s ease-in-out 2; transform-origin: 50% 10%; }
+@keyframes kbring { 0%, 100% { transform: rotate(0); } 15% { transform: rotate(14deg); } 30% { transform: rotate(-12deg); } 45% { transform: rotate(8deg); } 60% { transform: rotate(-5deg); } 75% { transform: rotate(2deg); } }
+@media (prefers-reduced-motion: reduce) { .kb-ring { animation: none; } }

@@ -3,7 +3,7 @@ export const BRAND = {
   name: "Karibu TV",
   short: "Karibu",
   domain: "karibu.tv",
-  supportWhatsApp: "+254711855263",
+  supportWhatsApp: "+254716855263",
   email: "connect@mrserengeti.com",
 };
 

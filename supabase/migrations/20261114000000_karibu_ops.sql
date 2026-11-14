@@ -378,8 +378,8 @@ create table if not exists public.app_settings (
   updated_at timestamptz not null default now()
 );
 insert into public.app_settings (key, value, public) values
-  ('shop', '{"mpesa_till": "", "mpesa_name": "Karibu TV", "whatsapp": "+254711855263", "pickup_note": ""}', true),
-  ('support', '{"whatsapp": "+254711855263", "email": "connect@mrserengeti.com", "hours": "Mon-Sat, 8am-8pm EAT"}', true)
+  ('shop', '{"mpesa_till": "", "mpesa_name": "Karibu TV", "whatsapp": "+254716855263", "pickup_note": ""}', true),
+  ('support', '{"whatsapp": "+254716855263", "email": "connect@mrserengeti.com", "hours": "Mon-Sat, 8am-8pm EAT"}', true)
 on conflict (key) do nothing;
 alter table public.app_settings enable row level security;
 drop policy if exists "public settings" on public.app_settings;

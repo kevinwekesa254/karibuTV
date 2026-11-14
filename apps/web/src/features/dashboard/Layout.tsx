@@ -8,6 +8,8 @@ import type { Calendar, HostNotification, Stay } from "@/lib/types";
 import { Logo } from "@/components/Logo";
 import { Icon } from "@/components/Icons";
 import { PageLoader } from "@/components/ui";
+import { useToast } from "@/lib/toast";
+import { chime, setSoundOn, soundOn } from "@/lib/chime";
 import { DataProvider, useData } from "./data";
 import { UpgradeSheet } from "./shared/UpgradeSheet";
 
@@ -198,6 +200,25 @@ function TopBar() {
   const team = useTeamMessages();
   const unread = team.items.filter((x) => !x.read);
   const name = profile?.name || user?.email || "Host";
+  const toast = useToast();
+  const [ring, setRing] = useState(0);
+  const [sound, setSound] = useState(soundOn);
+  // Soft alert (chime, bell wiggle, toast) when something new arrives after the page has loaded.
+  const seen = useRef<Set<string> | null>(null);
+  const settled = useRef(false);
+  useEffect(() => { const t = window.setTimeout(() => { settled.current = true; }, 4000); return () => window.clearTimeout(t); }, []);
+  useEffect(() => {
+    const keys = [...unread.map((m) => `m:${m.id}`), ...notes.map((n) => `n:${n.text.replace(/\d+/g, "#")}`)];
+    if (seen.current === null || !settled.current) { seen.current = new Set([...(seen.current || []), ...keys]); return; }
+    const fresh = keys.filter((k) => !seen.current!.has(k));
+    keys.forEach((k) => seen.current!.add(k));
+    if (!fresh.length) return;
+    const m = unread.find((x) => fresh.includes(`m:${x.id}`));
+    const n = notes.find((x) => fresh.includes(`n:${x.text.replace(/\d+/g, "#")}`));
+    chime();
+    setRing((r) => r + 1);
+    toast(m ? `New from the Karibu TV team: ${m.title}` : n ? n.text : "You have a new notification.");
+  }, [unread, notes]);
   const item = "flex w-full items-center gap-2 rounded px-3 py-2 text-left text-sm hover:bg-mint-soft";
   return (
     <header className="sticky top-0 z-30 border-b border-line bg-surface-wash/90 backdrop-blur">
@@ -217,7 +238,7 @@ function TopBar() {
               </>
             )}
           </Popover>
-          <Popover label={`Notifications${notes.length + unread.length ? `, ${notes.length + unread.length} new` : ""}`} button={<span className="relative"><Icon name="bell" />{notes.length + unread.length > 0 && <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-maroon px-1 text-[10px] font-bold text-white">{notes.length + unread.length}</span>}</span>}>
+          <Popover label={`Notifications${notes.length + unread.length ? `, ${notes.length + unread.length} new` : ""}`} button={<span className="relative"><span key={ring} className={`inline-flex ${ring ? "kb-ring" : ""}`}><Icon name="bell" /></span>{notes.length + unread.length > 0 && <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-maroon px-1 text-[10px] font-bold text-white">{notes.length + unread.length}</span>}</span>}>
             {(close) => (
               <div className="max-h-[70vh] overflow-y-auto">
                 {team.items.length > 0 && (
@@ -240,6 +261,10 @@ function TopBar() {
                     {n.text}
                   </button>
                 )) : !team.items.length ? <p className="px-3 py-4 text-sm text-ink-muted">You're all caught up.</p> : null}
+                <div className="mt-1 flex items-center justify-between border-t border-line px-3 py-2 text-xs text-ink-muted">
+                  <span>Sound for new notifications</span>
+                  <button className="font-semibold text-maroon underline" onClick={() => { const v = !sound; setSound(v); setSoundOn(v); if (v) chime(); }}>{sound ? "On" : "Off"}</button>
+                </div>
               </div>
             )}
           </Popover>
