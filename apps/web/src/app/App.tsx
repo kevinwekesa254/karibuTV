@@ -5,6 +5,10 @@ import { AuthProvider, useAuth } from "@/lib/auth";
 import { ToastProvider } from "@/lib/toast";
 import { PageLoader } from "@/components/ui";
 import { CookieBanner } from "@/components/CookieBanner";
+import { paymentsOn } from "@/lib/config";
+
+// Remember ?paytest=1 straight away, before any sign-in redirect drops it.
+paymentsOn();
 
 const Landing = lazy(() => import("@/features/landing/Landing"));
 const Privacy = lazy(() => import("@/features/legal/Legal").then((m) => ({ default: m.Privacy })));
