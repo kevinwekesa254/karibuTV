@@ -2,7 +2,7 @@
 // with an optional setup visit. Orders are priced by the database (place_order), never the browser.
 import { Fragment, useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
 import { track } from "@/lib/analytics";
-import { CONFIG } from "@/lib/config";
+import { paymentsOn } from "@/lib/config";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { supabase, errorMessage } from "@/lib/supabase";
@@ -425,7 +425,7 @@ export function Checkout() {
   const nav = useNavigate();
   const [f, setF] = useState({ name: "", phone: "", email: "", zone_id: "", address: "", note: "", mpesa_code: "" });
   const [fulfilment, setFulfilment] = useState<Fulfilment>("delivery");
-  const [pay, setPay] = useState<Pay>(CONFIG.payments_enabled ? "paystack" : "mpesa_till");
+  const [pay, setPay] = useState<Pay>(paymentsOn() ? "paystack" : "mpesa_till");
   const [touched, setTouched] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -515,7 +515,7 @@ export function Checkout() {
           <section className="space-y-4">
             <h2 className="font-display text-lg font-semibold">Payment</h2>
             <div className="space-y-2" role="radiogroup" aria-label="Payment">
-              {CONFIG.payments_enabled && <button type="button" role="radio" aria-checked={pay === "paystack"} onClick={() => setPay("paystack")} className={radio(pay === "paystack")}>
+              {paymentsOn() && <button type="button" role="radio" aria-checked={pay === "paystack"} onClick={() => setPay("paystack")} className={radio(pay === "paystack")}>
                 {dot(pay === "paystack")}<span><span className="block font-semibold">Pay now: M-Pesa or card</span><span className="block text-sm text-ink-muted">Secure checkout by Paystack. Your order is confirmed straight away.</span></span>
               </button>}
               <button type="button" role="radio" aria-checked={pay === "mpesa_till"} onClick={() => setPay("mpesa_till")} className={radio(pay === "mpesa_till")}>

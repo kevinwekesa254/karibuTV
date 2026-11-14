@@ -12,6 +12,10 @@ import { admin, cors, json } from "../_shared/supabase.ts";
 const HOST_APP = Deno.env.get("HOST_APP_URL") || "https://tv.mrserengeti.com";
 const PS = "https://api.paystack.co";
 const secret = () => (Deno.env.get("PAYSTACK_SECRET_KEY") || "").trim();
+// With a test key, only test accounts (@example.com) can pay, so nobody gets Pro or an order with a fake card.
+const testMode = () => secret().startsWith("sk_test_");
+const testOnly = (email: string) => testMode() && !/@example\.com$/i.test(email.trim());
+const TEST_MSG = "Online payment is being tested. WhatsApp us and we'll switch you on.";
 
 async function paystack(path: string, body?: unknown) {
   const r = await fetch(`${PS}${path}`, {
@@ -82,6 +86,7 @@ Deno.serve(async (req) => {
       const { data: u } = await db.auth.getUser(token);
       const user = u.user;
       if (!user?.email) return json({ error: "Please sign in again." }, 401);
+      if (testOnly(user.email)) return json({ error: TEST_MSG }, 403);
       const tvs = Math.floor(Number(body.tvs)), months = Math.floor(Number(body.months));
       const { data: pay, error } = await db.rpc("paystack_plan_create", { p_user: user.id, p_tvs: tvs, p_months: months });
       if (error) return json({ error: friendly(error.message) }, 400);
@@ -103,6 +108,7 @@ Deno.serve(async (req) => {
       const { data, error } = await db.rpc("paystack_order_start", { p_number: number, p_token: tok });
       if (error) return json({ error: friendly(error.message) }, 400);
       const o = data as { id: string; number: number; reference: string; amount_kes: number; email: string; name: string };
+      if (testOnly(o.email)) return json({ error: TEST_MSG }, 403);
       const init = await paystack("/transaction/initialize", {
         email: o.email, amount: o.amount_kes * 100, currency: "KES", reference: o.reference,
         callback_url: `${HOST_APP}/shop/order/${o.number}?t=${encodeURIComponent(tok)}`,
