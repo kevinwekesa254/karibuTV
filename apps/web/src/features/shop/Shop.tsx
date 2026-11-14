@@ -156,9 +156,9 @@ function ShopFooter() {
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:grid-cols-[1.5fr_1fr_1fr] sm:px-8">
         <div><Logo light /><p className="mt-3 max-w-sm text-sm text-bone/60">Streaming sticks that run the Karibu TV welcome screen, delivered and set up across Nairobi.</p></div>
         <div className="space-y-2 text-sm"><p className="font-semibold">Shop</p><Link to="/shop" className="block text-bone/70 hover:text-bone">All devices</Link><a href="/shop#delivery" className="block text-bone/70 hover:text-bone">Delivery and setup</a><Link to="/" className="block text-bone/70 hover:text-bone">The Karibu TV app</Link></div>
-        <div className="space-y-2 text-sm"><p className="font-semibold">Help</p><a href={waLink(BRAND.supportWhatsApp, "Hi! I have a question about the Karibu TV shop.")} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-bone/70 hover:text-bone"><WhatsAppIcon size={15} />WhatsApp</a><a href={`mailto:${BRAND.email}`} className="block text-bone/70 hover:text-bone">{BRAND.email}</a></div>
+        <div className="space-y-2 text-sm"><p className="font-semibold">Help</p><a href={waLink(BRAND.supportWhatsApp, "Hi! I have a question about the Karibu TV shop.")} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-bone/70 hover:text-bone"><WhatsAppIcon size={15} />WhatsApp</a><a href={`mailto:${BRAND.email}`} className="block text-bone/70 hover:text-bone">{BRAND.email}</a><Link to="/refunds" className="block text-bone/70 hover:text-bone">Returns and refunds</Link><Link to="/terms" className="block text-bone/70 hover:text-bone">Terms</Link></div>
       </div>
-      <p className="mx-auto max-w-7xl px-4 pb-10 text-xs text-bone/45 sm:px-8">© {new Date().getFullYear()} {BRAND.name}. Google, Chromecast and Google TV are trademarks of Google LLC. Amazon and Fire TV are trademarks of Amazon.com, Inc.</p>
+      <p className="mx-auto max-w-7xl px-4 pb-10 text-xs text-bone/45 sm:px-8">© {new Date().getFullYear()} {BRAND.name}, a product of {BRAND.company} · {BRAND.address}. Google, Chromecast and Google TV are trademarks of Google LLC. Amazon and Fire TV are trademarks of Amazon.com, Inc.</p>
     </footer>
   );
 }
@@ -557,7 +557,7 @@ export function Checkout() {
               <div className="flex items-baseline justify-between border-t border-line pt-3"><dt className="font-semibold">Total</dt><dd className="font-display text-2xl font-semibold tabular-nums">{kes(total)}</dd></div>
             </dl>
             <Button type="submit" size="lg" variant="sun" className="mt-6 w-full" loading={busy}>{pay === "whatsapp" ? "Place order and open WhatsApp" : pay === "paystack" ? `Pay ${kes(total)}` : "Place order"}</Button>
-            <p className="mt-3 text-center text-xs text-ink-muted">Prices include VAT. Final amount is confirmed when we receive your order.</p>
+            <p className="mt-3 text-center text-xs text-ink-muted">Prices include VAT. Unopened devices can be returned within 5 business days. <Link to="/refunds" className="underline">Returns policy</Link></p>
           </div>
         </aside>
       </form>

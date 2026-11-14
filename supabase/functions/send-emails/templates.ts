@@ -65,7 +65,7 @@ function layout(c: Ctx, preheader: string, body: string, unsubscribe?: string) {
 <tr><td style="padding:20px 28px 28px;border-top:1px solid ${LINE}">
 ${small(`Questions? Reply to this email or WhatsApp us on <a href="https://wa.me/${WHATSAPP.replace(/\D/g, "")}" style="color:${MAROON}">${WHATSAPP}</a>.`)}
 ${small(footerWhy)}
-${small("Karibu TV by Mr Serengeti · Nairobi, Kenya")}
+${small("Karibu TV by Mr Serengeti · Tatu City, Kiambu, Kenya")}
 </td></tr></table></td></tr></table></body></html>`;
 }
 
@@ -266,6 +266,6 @@ export function render(template: string, c: Ctx): Rendered | null {
     ? `${c.hostApp}/unsubscribe?t=${c.profile.email_token}&k=${c.kind === "reminder" ? "reminders" : "marketing"}` : undefined;
   const b = t(c);
   const html = layout(c, b.preheader, b.body, unsubscribe);
-  return { subject: b.subject, html, text: toText(b.body) + "\n\n--\nKaribu TV by Mr Serengeti · Nairobi, Kenya" + (unsubscribe ? `\nTurn these off: ${unsubscribe}` : ""), unsubscribe };
+  return { subject: b.subject, html, text: toText(b.body) + "\n\n--\nKaribu TV by Mr Serengeti · Tatu City, Kiambu, Kenya" + (unsubscribe ? `\nTurn these off: ${unsubscribe}` : ""), unsubscribe };
 }
 export const TEMPLATES = Object.keys(T);

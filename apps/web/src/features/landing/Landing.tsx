@@ -580,10 +580,10 @@ function Footer() {
       <div className="mx-auto grid max-w-7xl gap-8 pt-12 sm:grid-cols-[1.5fr_1fr_1fr_1fr]">
         <div><Logo light /><p className="mt-3 text-sm text-bone/60">Welcome screens for holiday rentals across East Africa.</p></div>
         <div className="space-y-2 text-sm"><p className="font-semibold">Product</p><a href="#features" className="block text-bone/70 hover:text-bone">Features</a><a href="#pricing" className="block text-bone/70 hover:text-bone">Pricing</a><a href="#faq" className="block text-bone/70 hover:text-bone">FAQ</a><a href={CONFIG.apk_url} className="block text-bone/70 hover:text-bone">Download the TV app</a></div>
-        <div className="space-y-2 text-sm"><p className="font-semibold">Legal</p><Link to="/privacy" className="block text-bone/70 hover:text-bone">Privacy</Link><Link to="/terms" className="block text-bone/70 hover:text-bone">Terms</Link></div>
+        <div className="space-y-2 text-sm"><p className="font-semibold">Legal</p><Link to="/privacy" className="block text-bone/70 hover:text-bone">Privacy</Link><Link to="/terms" className="block text-bone/70 hover:text-bone">Terms</Link><Link to="/refunds" className="block text-bone/70 hover:text-bone">Refunds and returns</Link></div>
         <div className="space-y-2 text-sm"><p className="font-semibold">Contact</p><a href={waLink(BRAND.supportWhatsApp)} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-bone/70 hover:text-bone"><WhatsAppIcon size={15} />WhatsApp</a><a href={`mailto:${BRAND.email}`} className="block text-bone/70 hover:text-bone">{BRAND.email}</a></div>
       </div>
-      <p className="mx-auto mt-10 max-w-7xl text-xs leading-relaxed text-bone/45">© {new Date().getFullYear()} {BRAND.name}.</p>
+      <p className="mx-auto mt-10 max-w-7xl text-xs leading-relaxed text-bone/45">© {new Date().getFullYear()} {BRAND.name}, a product of {BRAND.company} · {BRAND.address}</p>
     </footer>
   );
 }

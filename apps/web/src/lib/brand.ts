@@ -5,6 +5,8 @@ export const BRAND = {
   domain: "karibu.tv",
   supportWhatsApp: "+254716855263",
   email: "connect@mrserengeti.com",
+  company: "Mr Serengeti",
+  address: "Tatu City, Kiambu, Kenya",
 };
 
 export const appUrl = () => (typeof window !== "undefined" ? window.location.origin : `https://${BRAND.domain}`);

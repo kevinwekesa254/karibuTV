@@ -128,7 +128,7 @@ export default function Billing() {
           <div className="mt-5 space-y-3">
             {paymentsOn() ? <>
             <Button size="lg" className="w-full" icon="card" loading={paying || checking} onClick={pay}>{checking ? "Confirming your payment…" : `Pay ${formatMoney(payKes, "KES")} by M-Pesa or card`}</Button>
-            <p className="text-center text-xs text-ink-muted">Secure checkout. Pro switches on the moment you pay, and we email your receipt.</p>
+            <p className="text-center text-xs text-ink-muted">Secure checkout. Pro switches on the moment you pay, and we email your receipt. No automatic renewals. <a href="/refunds" target="_blank" rel="noreferrer" className="underline">Refund policy</a></p>
             <a className="kb-btn kb-btn--ghost kb-btn--md w-full" href={waLink(wa, msg)} target="_blank" rel="noreferrer"><WhatsAppIcon size={18} />Prefer to pay on WhatsApp?</a>
             </> : <>
             <a className="kb-btn kb-btn--primary kb-btn--lg w-full" href={waLink(wa, msg)} target="_blank" rel="noreferrer"><WhatsAppIcon size={20} />Upgrade on WhatsApp</a>

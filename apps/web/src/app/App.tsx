@@ -13,6 +13,7 @@ paymentsOn();
 const Landing = lazy(() => import("@/features/landing/Landing"));
 const Privacy = lazy(() => import("@/features/legal/Legal").then((m) => ({ default: m.Privacy })));
 const Terms = lazy(() => import("@/features/legal/Legal").then((m) => ({ default: m.Terms })));
+const Refunds = lazy(() => import("@/features/legal/Legal").then((m) => ({ default: m.Refunds })));
 const SignIn = lazy(() => import("@/features/auth/Auth").then((m) => ({ default: m.SignIn })));
 const SignUp = lazy(() => import("@/features/auth/Auth").then((m) => ({ default: m.SignUp })));
 const Reset = lazy(() => import("@/features/auth/Auth").then((m) => ({ default: m.Reset })));
@@ -83,6 +84,7 @@ export default function App() {
               <Route path="/" element={<Landing />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/terms" element={<Terms />} />
+              <Route path="/refunds" element={<Refunds />} />
               <Route path="/signin" element={<GuestOnly><SignIn /></GuestOnly>} />
               <Route path="/signup" element={<GuestOnly><SignUp /></GuestOnly>} />
               <Route path="/reset" element={<Reset />} />
