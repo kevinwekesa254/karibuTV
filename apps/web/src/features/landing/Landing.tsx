@@ -9,7 +9,7 @@ import { BRAND, waLink } from "@/lib/brand";
 import { samplePayload } from "@/lib/samples";
 import { TEMPLATES } from "@/lib/templates";
 import { COUNTRIES } from "@/lib/countries";
-import { formatMoney, quote, type Currency } from "@/lib/pricing";
+import { formatMoney, price, PRICING, type Currency } from "@/lib/pricing";
 import type { ScreenState } from "@/lib/types";
 import { Logo } from "@/components/Logo";
 import { Icon, WhatsAppIcon } from "@/components/Icons";
@@ -408,14 +408,14 @@ function AnyTv() {
 function Pricing() {
   const [tvs, setTvs] = useState(2);
   const [cur, setCur] = useState<Currency>("KES");
-  const intro = quote(tvs, 1, cur), standard = quote(tvs, 4, cur);
+  const monthly = price(tvs, 1, cur), yearly = price(tvs, 12, cur);
   const m = (n: number) => formatMoney(n, cur);
   return (
     <Section id="pricing" className="bg-white">
       <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
         <div>
           <Reveal><h2 className={H2}>Simple pricing, per TV.</h2></Reveal>
-          <p className="mt-4 max-w-md text-lg text-ink-muted">Free for one TV. Pro is {m(quote(1, 1, cur).unit)} per TV for your first three months, then {m(quote(1, 4, cur).unit)}. Five or more TVs: 15% off everything.</p>
+          <p className="mt-4 max-w-md text-lg text-ink-muted">Free for one TV, forever. Pro is {m(PRICING.perTv[cur])} per TV a month. Pay yearly and get 2 months free.</p>
           <div className="mt-8 rounded-[20px] border border-line p-6">
             <p className="font-display text-xl font-semibold text-navy">Free</p>
             <p className="mt-1 text-sm text-ink-muted">1 TV and 1 property, forever. Guest names, Wi-Fi QR, rules, local guide and review prompt.</p>
@@ -439,20 +439,16 @@ function Pricing() {
                 className="mt-3 w-full accent-[#f3b0bd]" aria-valuetext={`${tvs} TVs`} />
               <div className="mt-8 grid gap-4 sm:grid-cols-2">
                 <div className="rounded-[16px] bg-white/[0.07] p-5">
-                  <p className="text-sm text-bone/70">Months 1 to 3</p>
-                  <p className="mt-1 font-display text-3xl font-semibold tabular-nums">{m(intro.total)}</p>
-                  <p className="text-sm text-bone/60">per month</p>
+                  <p className="text-sm text-bone/70">Monthly</p>
+                  <p className="mt-1 font-display text-3xl font-semibold tabular-nums">{m(monthly.total)}</p>
+                  <p className="text-sm text-bone/60">a month</p>
                 </div>
-                <div className="rounded-[16px] bg-white/[0.07] p-5">
-                  <p className="text-sm text-bone/70">From month 4</p>
-                  <p className="mt-1 font-display text-3xl font-semibold tabular-nums">{m(standard.total)}</p>
-                  <p className="text-sm text-bone/60">per month</p>
+                <div className="rounded-[16px] bg-white/[0.07] p-5 ring-1 ring-[#f3b0bd]/40">
+                  <p className="text-sm text-bone/70">Yearly <span className="ml-1 rounded-full bg-[#f3b0bd] px-2 py-0.5 text-[11px] font-semibold text-navy">2 months free</span></p>
+                  <p className="mt-1 font-display text-3xl font-semibold tabular-nums">{m(yearly.total)}</p>
+                  <p className="text-sm text-bone/60">a year · save {m(yearly.saved)}</p>
                 </div>
               </div>
-              <p className="mt-5 min-h-[1.5rem] text-sm">
-                {intro.bulk ? <span className="font-semibold text-[#f3b0bd]">15% multi-TV discount applied: you save {m(standard.discount)} a month.</span>
-                  : <span className="text-bone/60">Add {5 - tvs} more TV{5 - tvs > 1 ? "s" : ""} for 15% off the whole bill.</span>}
-              </p>
               <ul className="mt-6 grid gap-2 text-sm text-bone/85 sm:grid-cols-2">
                 {["Calendar sync: Airbnb, Booking.com, Vrbo", "Up to 50 properties", "Your logo, no Karibu badge", "Weather on screen", "Guest guide insights", "Pay by M-Pesa or card"].map((x) => (
                   <li key={x} className="flex gap-2"><Icon name="check" size={16} className="mt-0.5 text-[#f3b0bd]" />{x}</li>
@@ -476,7 +472,7 @@ const FAQ: [string, string][] = [
   ["We have a TV in the bedroom and the living room. Is that OK?", "Yes. Pair each TV to the same property and name it by room. They all greet the same guest and update together. Each TV counts once on your plan."],
   ["Where do guest names come from?", "Type the first name when you add a booking, or connect your Airbnb, Booking.com or Vrbo calendar and just add the name."],
   ["What if the internet or power goes?", "The app starts by itself when the TV comes back on and shows the last screen it had, even offline. It catches up when the connection returns."],
-  ["How do I pay?", "Free needs no payment. Pro is paid per TV by M-Pesa or card: KES 399 per TV for the first three months, then KES 499, with 15% off for 5 or more TVs."],
+  ["How do I pay?", "Free needs no payment. Pro is KES 499 per TV a month, paid by M-Pesa or card. Pay for a year and you get 2 months free."],
   ["What do you keep about guests?", "Only the first name and stay dates, deleted 30 days after check-out. Host accounts are protected with strong passwords and two-step verification."],
 ];
 
@@ -598,7 +594,7 @@ function JsonLd() {
     el.type = "application/ld+json";
     el.text = JSON.stringify([
       { "@context": "https://schema.org", "@type": "SoftwareApplication", name: BRAND.name, applicationCategory: "BusinessApplication", operatingSystem: "Android TV, Google TV, Fire TV, Web",
-        offers: [{ "@type": "Offer", price: "0", priceCurrency: "KES", name: "Free" }, { "@type": "Offer", price: "399", priceCurrency: "KES", name: "Pro, per TV per month (first 3 months)" }] },
+        offers: [{ "@type": "Offer", price: "0", priceCurrency: "KES", name: "Free" }, { "@type": "Offer", price: "499", priceCurrency: "KES", name: "Pro, per TV per month" }] },
       { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: FAQ.map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })) },
     ]);
     document.head.appendChild(el);

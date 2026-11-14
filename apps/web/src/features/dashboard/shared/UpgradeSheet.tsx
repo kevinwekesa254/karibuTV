@@ -1,4 +1,4 @@
-import { formatMoney, quote } from "@/lib/pricing";
+import { priceLine as line } from "@/lib/pricing";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
 
@@ -16,8 +16,7 @@ export const PRO_FEATURES = [
 ];
 
 export function priceLine(country: string | undefined) {
-  const c = country === "KE" || !country ? "KES" : "USD";
-  return `${formatMoney(quote(1, 1, c).unit, c)} per TV / month for 3 months, then ${formatMoney(quote(1, 4, c).unit, c)}`;
+  return `Pro: ${line(country === "KE" || !country ? "KES" : "USD")}`;
 }
 
 export function UpgradeSheet() {
@@ -36,7 +35,7 @@ export function UpgradeSheet() {
         ))}
       </ul>
       <p className="mt-5 font-display text-xl font-semibold text-forest">{priceLine(profile?.country)}</p>
-      <p className="text-sm text-maroon">5 or more TVs: 15% off the whole bill.</p>
+      <p className="text-sm text-maroon">Pay yearly and get 2 months free.</p>
       <div className="mt-5 flex flex-wrap gap-2">
         <Link to="/app/billing" onClick={closeUpgrade} className="kb-btn kb-btn--primary kb-btn--md"><Icon name="card" size={18} />See plans and upgrade</Link>
         <a className="kb-btn kb-btn--secondary kb-btn--md" href={waLink(wa, `Hi! I'd like to upgrade ${user?.email || "my account"} to Karibu TV Pro.`)} target="_blank" rel="noreferrer">

@@ -233,7 +233,7 @@ export default function Tvs() {
             <li className="flex gap-2"><Icon name="check" size={16} className="mt-0.5 text-maroon" />Install the app on each TV. Each one shows its own code.</li>
             <li className="flex gap-2"><Icon name="check" size={16} className="mt-0.5 text-maroon" />Pair every code to the same property and name it by room: “Living room”, “Master bedroom”.</li>
             <li className="flex gap-2"><Icon name="check" size={16} className="mt-0.5 text-maroon" />They all greet the same guest and update together when you change anything.</li>
-            <li className="flex gap-2"><Icon name="check" size={16} className="mt-0.5 text-maroon" />Each TV counts once on your plan. 5 or more TVs get 15% off the whole bill.</li>
+            <li className="flex gap-2"><Icon name="check" size={16} className="mt-0.5 text-maroon" />Each TV counts once on your plan: KES 499 per TV a month on Pro.</li>
           </ul>
         </div>
       </Card>

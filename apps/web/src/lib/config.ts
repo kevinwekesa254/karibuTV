@@ -7,7 +7,7 @@ export const CONFIG = {
   trialDays: 30,
   /** Paused features: switch on when ready (code and database support stay in place). */
   features: { aiAssistant: false, socialLogin: false },
-  founding_offer: { label: "Founding host · first 100", active: true },
+  founding_offer: { label: "Founding host · first 100", active: false },
   /** Paystack checkout. Off for visitors until the live key is in; open /?paytest=1 once to try it with a test account. */
   payments_enabled: false,
   /** Where hosts download the TV app (typed into the TV's Downloader app). */

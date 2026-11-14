@@ -105,10 +105,10 @@ const T: Record<string, Build> = {
   }),
   trial_ending: (c) => ({
     subject: "Your Karibu TV trial ends in 3 days",
-    preheader: "Keep every TV welcoming guests: Pro is KES 399 per TV for your first 3 months.",
+    preheader: "Keep every TV welcoming guests: Pro is KES 499 per TV a month.",
     body: h1("Your free trial ends in 3 days") +
       p(`Hi ${esc(first(c.name))}, your Pro trial ends on <b>${esc(day(c.data.plan_until))}</b>. After that your account moves to the Free plan: 1 property and 1 TV.`) +
-      p("To keep all your TVs, custom logo, weather and calendar sync, upgrade to Pro. It's <b>KES 399 per TV a month for the first 3 months</b>, then KES 499, with 15% off from 5 TVs. Pay by M-Pesa.") +
+      p("To keep all your TVs, custom logo, weather and calendar sync, upgrade to Pro. It's <b>KES 499 per TV a month</b>, or pay yearly and get 2 months free. Pay by M-Pesa or card.") +
       button(`${c.hostApp}/app/billing`, "Upgrade to Pro"),
   }),
   trial_ended: (c) => ({

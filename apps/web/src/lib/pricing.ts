@@ -1,50 +1,47 @@
-// Karibu TV pricing. The one place prices are calculated in the app; the database function
-// public.price_quote() mirrors it exactly and is what a payment must be checked against.
+// Karibu TV pricing. The one place prices are worked out in the app; the database function
+// public.plan_price() mirrors it exactly and is what every payment is checked against.
 //
 // Rules
-// 1. Pro is billed per TV per month.
-// 2. Months 1-3 of a host's paid subscription: introductory price (KES 399 per TV).
-//    From month 4: standard price (KES 499 per TV).
-// 3. 5 or more TVs: 15% off the whole monthly bill.
-// 4. KES rounds to whole shillings, USD to cents (half up).
+// 1. Free: 1 TV and 1 property, forever.
+// 2. Pro: KES 499 (US$3.90) per TV per month.
+// 3. Pay for 12 months: 2 months free (you pay for 10).
+// KES rounds to whole shillings, USD to cents.
 
 export type Currency = "KES" | "USD";
 
 export const PRICING = {
-  introMonths: 3,
-  perTv: { KES: { intro: 399, standard: 499 }, USD: { intro: 3.1, standard: 3.9 } } as Record<Currency, { intro: number; standard: number }>,
-  bulk: { minTvs: 5, percent: 15 },
+  perTv: { KES: 499, USD: 3.9 } as Record<Currency, number>,
+  yearlyFreeMonths: 2,
   maxTvs: 500,
 } as const;
 
-// All maths in minor units (shillings / cents) so it can't drift from the SQL version.
 const minor = (c: Currency) => (c === "KES" ? 1 : 100);
 
-export interface Quote {
-  currency: Currency; tvs: number; month: number;
-  unit: number; intro: boolean; subtotal: number; discount: number; total: number; bulk: boolean;
+export interface Price {
+  currency: Currency; tvs: number; months: number;
+  unit: number;      // per TV per month
+  monthly: number;   // all TVs, one month
+  freeMonths: number;
+  total: number;     // what's charged for `months`
+  saved: number;     // value of the free months
 }
 
-/** Price of one billing month. `month` is 1 for the first paid month. */
-export function quote(tvs: number, month = 1, currency: Currency = "KES"): Quote {
+/** Price for `tvs` TVs over `months` months (1 = monthly, 12 = yearly with 2 months free). */
+export function price(tvs: number, months = 1, currency: Currency = "KES"): Price {
   const n = Math.max(1, Math.min(PRICING.maxTvs, Math.floor(tvs) || 1));
-  const m = Math.max(1, Math.floor(month) || 1);
-  const intro = m <= PRICING.introMonths;
-  const unit = PRICING.perTv[currency][intro ? "intro" : "standard"];
+  const m = Math.max(1, Math.min(24, Math.floor(months) || 1));
   const k = minor(currency);
-  const subtotalMinor = Math.round(unit * k) * n;
-  const bulk = n >= PRICING.bulk.minTvs;
-  const discountMinor = bulk ? Math.round((subtotalMinor * PRICING.bulk.percent) / 100) : 0; // integer maths, half up
-  return { currency, tvs: n, month: m, unit, intro, subtotal: subtotalMinor / k, discount: discountMinor / k, total: (subtotalMinor - discountMinor) / k, bulk };
-}
-
-/** Total for the first `months` months of a subscription (e.g. 12 for a first-year estimate). */
-export function periodTotal(tvs: number, months: number, currency: Currency = "KES") {
-  const k = minor(currency);
-  let total = 0;
-  for (let m = 1; m <= months; m++) total += Math.round(quote(tvs, m, currency).total * k);
-  return total / k;
+  const unit = PRICING.perTv[currency];
+  const monthlyMinor = Math.round(unit * k) * n;
+  const freeMonths = Math.floor(m / 12) * PRICING.yearlyFreeMonths;
+  return {
+    currency, tvs: n, months: m, unit, monthly: monthlyMinor / k, freeMonths,
+    total: (monthlyMinor * (m - freeMonths)) / k, saved: (monthlyMinor * freeMonths) / k,
+  };
 }
 
 export const formatMoney = (n: number, c: Currency) =>
   c === "KES" ? `KES ${n.toLocaleString("en-KE")}` : `$${n.toFixed(2).replace(/\.00$/, "")}`;
+
+/** "KES 499 per TV a month" */
+export const priceLine = (c: Currency) => `${formatMoney(PRICING.perTv[c], c)} per TV a month`;
