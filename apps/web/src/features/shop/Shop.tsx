@@ -557,7 +557,7 @@ export function Checkout() {
               <div className="flex items-baseline justify-between border-t border-line pt-3"><dt className="font-semibold">Total</dt><dd className="font-display text-2xl font-semibold tabular-nums">{kes(total)}</dd></div>
             </dl>
             <Button type="submit" size="lg" variant="sun" className="mt-6 w-full" loading={busy}>{pay === "whatsapp" ? "Place order and open WhatsApp" : pay === "paystack" ? `Pay ${kes(total)}` : "Place order"}</Button>
-            <p className="mt-3 text-center text-xs text-ink-muted">Prices include VAT. Unopened devices can be returned within 5 business days. <Link to="/refunds" className="underline">Returns policy</Link></p>
+            <p className="mt-3 text-center text-xs text-ink-muted">Unopened devices can be returned within 5 business days. <Link to="/refunds" className="underline">Returns policy</Link></p>
           </div>
         </aside>
       </form>
