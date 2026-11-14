@@ -151,9 +151,14 @@ export default function Billing() {
             {currency === "USD" && <p className="mt-1 text-xs text-ink-muted">Charged in Kenyan shillings. Your card converts it.</p>}
           </div>
           <div className="mt-5 space-y-3">
+            {cfg.payments_enabled ? <>
             <Button size="lg" className="w-full" icon="card" loading={paying || checking} onClick={pay}>{checking ? "Confirming your payment…" : `Pay ${formatMoney(payKes, "KES")} by M-Pesa or card`}</Button>
             <p className="text-center text-xs text-ink-muted">Secure checkout by Paystack. Pro switches on the moment you pay, and we email your receipt.</p>
             <a className="kb-btn kb-btn--ghost kb-btn--md w-full" href={waLink(wa, msg)} target="_blank" rel="noreferrer"><WhatsAppIcon size={18} />Prefer to pay on WhatsApp?</a>
+            </> : <>
+            <a className="kb-btn kb-btn--primary kb-btn--lg w-full" href={waLink(wa, msg)} target="_blank" rel="noreferrer"><WhatsAppIcon size={20} />Upgrade on WhatsApp</a>
+            <p className="text-center text-xs text-ink-muted">Paying by M-Pesa or card here is coming very soon. Until then we switch your account on as soon as you pay us on WhatsApp.</p>
+            </>}
           </div>
         </Card>
       </div>

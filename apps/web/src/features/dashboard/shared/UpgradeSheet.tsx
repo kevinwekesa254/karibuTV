@@ -38,7 +38,7 @@ export function UpgradeSheet() {
       <p className="mt-5 font-display text-xl font-semibold text-forest">{priceLine(profile?.country)}</p>
       <p className="text-sm text-maroon">5 or more TVs: 15% off the whole bill.</p>
       <div className="mt-5 flex flex-wrap gap-2">
-        <Link to="/app/billing" onClick={closeUpgrade} className="kb-btn kb-btn--primary kb-btn--md"><Icon name="card" size={18} />Upgrade: M-Pesa or card</Link>
+        <Link to="/app/billing" onClick={closeUpgrade} className="kb-btn kb-btn--primary kb-btn--md"><Icon name="card" size={18} />See plans and upgrade</Link>
         <a className="kb-btn kb-btn--secondary kb-btn--md" href={waLink(wa, `Hi! I'd like to upgrade ${user?.email || "my account"} to Karibu TV Pro.`)} target="_blank" rel="noreferrer">
           <WhatsAppIcon size={18} /> Ask on WhatsApp
         </a>
