@@ -109,7 +109,7 @@ function AuthShell({ title, subtitle, children, footer }: { title: string; subti
         <div className="kb-card p-6 shadow-panel sm:p-8">
           <h1 className="font-display text-display-sm text-forest">{title}</h1>
           {subtitle && <p className="mt-1 text-ink-muted">{subtitle}</p>}
-          {!supabaseConfigured && <div className="mt-4"><ErrorBanner>Supabase isn't connected yet: add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.</ErrorBanner></div>}
+          {!supabaseConfigured && <div className="mt-4"><ErrorBanner>Sign-in isn't available right now. Please try again shortly.</ErrorBanner></div>}
           <div className="mt-6">{children}</div>
         </div>
         {footer && <div className="mt-6 text-center text-sm text-ink-muted">{footer}</div>}

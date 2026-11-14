@@ -118,7 +118,7 @@ function Templates({ draft, onApply }: { draft: Partial<Property> & { name: stri
           );
         })}
       </div>
-      {!ownPhotos && <p className="mt-3 text-xs text-ink-muted">Sample photos from Unsplash. Upload your own below and the template keeps your photo.</p>}
+      {!ownPhotos && <p className="mt-3 text-xs text-ink-muted">Sample photos. Upload your own below and the template keeps your photo.</p>}
     </Section>
   );
 }
@@ -327,7 +327,7 @@ function Editor({ property }: { property: Property }) {
         </Section>
         <Section icon="sun" title={<span className="inline-flex items-center gap-2">Weather {!plan.pro && <ProTag />}</span>} description="The forecast for your area under the Wi-Fi card: now, today and the next three days.">
           <Toggle checked={draft.weather_enabled} onChange={(v) => (v && !plan.pro ? openUpgrade("Weather on the TV is a Pro feature.") : set("weather_enabled", v))}
-            label="Show the weather on the TV" description="Updated every hour from MET Norway." />
+            label="Show the weather on the TV" description="Updated every hour." />
           {draft.weather_enabled && (
             <Field label="Place" className="mt-4" hint={property.weather_json ? `Found. Last updated ${property.weather_at ? new Date(property.weather_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : ""}.` : "Town and country, e.g. Diani Beach, Kenya."}>
               {(id, d) => <Input id={id} value={draft.weather_place} onChange={(e) => set("weather_place", e.target.value)} maxLength={120} placeholder={property.area ? `${property.area}, Kenya` : "Diani Beach, Kenya"} aria-describedby={d} />}

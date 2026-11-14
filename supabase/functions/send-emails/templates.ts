@@ -254,8 +254,8 @@ const T: Record<string, Build> = {
   }),
   test: (c) => ({
     subject: "Test email from Karibu TV",
-    preheader: "If you can read this, Brevo sending works.",
-    body: h1("It works!") + p("This is a test email from the Karibu TV admin. Sending through Brevo is set up correctly.") + small(`Sent ${esc(when(new Date().toISOString()))}.`),
+    preheader: "If you can read this, email sending works.",
+    body: h1("It works!") + p("This is a test email from the Karibu TV admin. Automatic emails are set up correctly.") + small(`Sent ${esc(when(new Date().toISOString()))}.`),
   }),
 };
 

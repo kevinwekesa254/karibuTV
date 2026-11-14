@@ -516,7 +516,7 @@ export function Checkout() {
             <h2 className="font-display text-lg font-semibold">Payment</h2>
             <div className="space-y-2" role="radiogroup" aria-label="Payment">
               {paymentsOn() && <button type="button" role="radio" aria-checked={pay === "paystack"} onClick={() => setPay("paystack")} className={radio(pay === "paystack")}>
-                {dot(pay === "paystack")}<span><span className="block font-semibold">Pay now: M-Pesa or card</span><span className="block text-sm text-ink-muted">Secure checkout by Paystack. Your order is confirmed straight away.</span></span>
+                {dot(pay === "paystack")}<span><span className="block font-semibold">Pay now: M-Pesa or card</span><span className="block text-sm text-ink-muted">Secure checkout. Your order is confirmed straight away.</span></span>
               </button>}
               <button type="button" role="radio" aria-checked={pay === "mpesa_till"} onClick={() => setPay("mpesa_till")} className={radio(pay === "mpesa_till")}>
                 {dot(pay === "mpesa_till")}<span><span className="block font-semibold">M-Pesa to our till</span><span className="block text-sm text-ink-muted">Pay to our till now. We confirm and dispatch.</span></span>

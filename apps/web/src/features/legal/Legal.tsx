@@ -22,15 +22,15 @@ export function Privacy() {
     <LegalPage title="Privacy notice" updated="13 November 2026">
       <p>{BRAND.name} helps holiday-rental hosts show a welcome screen on their TV. This notice explains what we keep and why, in line with Kenya's Data Protection Act, 2019.</p>
       <h2>What we keep about hosts</h2>
-      <ul><li>Name, email, WhatsApp number and country, to run your account and help you set up.</li><li>Your property details, Wi-Fi details, house rules and screen settings, to show them on your TV.</li><li>Payment records: amount, date and how you paid (M-Pesa or card type and last 4 digits). Card and M-Pesa details are handled by Paystack; we never see your full card number or PIN.</li></ul>
+      <ul><li>Name, email, WhatsApp number and country, to run your account and help you set up.</li><li>Your property details, Wi-Fi details, house rules and screen settings, to show them on your TV.</li><li>Payment records: amount, date and how you paid (M-Pesa or card type and last 4 digits). Card and M-Pesa details are handled by our licensed payment partner; we never see your full card number or PIN.</li></ul>
       <h2>What we keep about guests</h2>
       <ul><li>Only the guest's first name and the stay dates you enter or that come from your booking calendar.</li><li>We delete stays automatically 30 days after check-out.</li><li>Private notes you add to a booking are never shown on the TV.</li></ul>
       <h2>TVs</h2>
       <p>Each paired TV sends a heartbeat every few minutes (app version, screen size, last seen time) so you can see whether it's online.</p>
       <h2>Who we share data with</h2>
-      <p>We don't sell data. We use a hosting provider in the EU, Paystack to take payments, Brevo to send our emails, MET Norway for weather (only your property's approximate location) and OpenStreetMap to look up that location.</p>
+      <p>We don't sell data. We use trusted service providers only to run Karibu TV: secure hosting in the EU, a licensed payment partner, an email delivery service, and weather and map services (which only receive your property's approximate location). Each one handles data only on our instructions. Ask us at any time for the full list.</p>
       <h2>Cookies and analytics</h2>
-      <p>If you click Accept on our cookie notice, we use Google Analytics to count visits and see which pages are useful. It records pages viewed, roughly where you are (country and city), your device and how you found us. We don't send names, emails or booking details to Google, and guests' TV screens and guide pages are never tracked. Click No thanks and nothing is loaded. To change your mind, clear this site's data in your browser.</p>
+      <p>If you click Accept on our cookie notice, we use a web analytics service (Google Analytics) to count visits and see which pages are useful. It records pages viewed, roughly where you are (country and city), your device and how you found us. We don't send names, emails or booking details to Google, and guests' TV screens and guide pages are never tracked. Click No thanks and nothing is loaded. To change your mind, clear this site's data in your browser.</p>
       <h2>Your rights</h2>
       <p>You can see, correct or delete your data at any time from Settings, or ask us at {BRAND.email}. Deleting your account deletes everything straight away.</p>
     </LegalPage>
