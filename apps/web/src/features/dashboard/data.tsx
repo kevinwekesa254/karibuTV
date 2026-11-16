@@ -35,15 +35,18 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [upgradeReason, setUpgradeReason] = useState<string | null>(null);
 
   const reloadProperties = useCallback(async () => {
-    const { data, error } = await supabase.from("properties").select("*").order("created_at");
+    if (!user) return [];
+    // Only this host's rows: admins can read every host's data, and this screen is the host view.
+    const { data, error } = await supabase.from("properties").select("*").eq("owner_id", user.id).order("created_at");
     if (error) throw error;
     setProperties(data as Property[]);
     return data as Property[];
-  }, []);
+  }, [user]);
   const reloadDevices = useCallback(async () => {
-    const { data } = await supabase.from("devices").select("*").order("created_at");
+    if (!user) return;
+    const { data } = await supabase.from("devices").select("*").eq("owner_id", user.id).order("created_at");
     setDevices((data as Device[]) || []);
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     if (!user) return;

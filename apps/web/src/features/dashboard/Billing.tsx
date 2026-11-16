@@ -27,7 +27,7 @@ export default function Billing() {
   const paired = devices.filter((d) => d.property_id).length;
   const [tvs, setTvs] = useState(Math.max(1, paired, plan.pro ? plan.maxTvs : 1));
   const [payments, setPayments] = useState<Payment[]>([]);
-  const loadPayments = () => supabase.from("payments").select("*").neq("status", "cancelled").order("created_at", { ascending: false }).then(({ data }) => setPayments((data as Payment[]) || []));
+  const loadPayments = () => supabase.from("payments").select("*").eq("user_id", user?.id || "").neq("status", "cancelled").order("created_at", { ascending: false }).then(({ data }) => setPayments((data as Payment[]) || []));
   useEffect(() => { loadPayments(); }, []);
 
   // Back from Paystack: ?reference=KTVP... Ask the server to confirm with Paystack.

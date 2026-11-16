@@ -207,7 +207,7 @@ export default function Settings() {
   const deleteAccount = async () => {
     setBusy("del");
     try {
-      const { data: devs } = await supabase.from("devices").select("id");
+      const { data: devs } = await supabase.from("devices").select("id").eq("owner_id", user.id);
       for (const d of devs || []) await supabase.rpc("device_unlink", { p_device: d.id });
       const { error } = await supabase.from("properties").delete().eq("owner_id", user.id);
       if (error) throw error;

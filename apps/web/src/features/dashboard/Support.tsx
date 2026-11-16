@@ -109,12 +109,14 @@ export default function Support() {
   const [tickets, setTickets] = useState<Ticket[] | null>(null);
   const [open, setOpen] = useState(false);
   const { properties } = useData();
+  const { user } = useAuth();
   useEffect(() => {
-    const load = () => supabase.from("tickets").select("*").order("last_message_at", { ascending: false }).then(({ data }) => setTickets((data as Ticket[]) || []));
+    if (!user) return;
+    const load = () => supabase.from("tickets").select("*").eq("user_id", user.id).order("last_message_at", { ascending: false }).then(({ data }) => setTickets((data as Ticket[]) || []));
     load();
     const ch = supabase.channel("my-tickets").on("postgres_changes", { event: "*", schema: "public", table: "tickets" }, load).subscribe();
     return () => { supabase.removeChannel(ch); };
-  }, []);
+  }, [user]);
   return (
     <div>
       <PageHeader title={<span className="flex items-center gap-3"><Icon name="help" size={28} />Support</span>} subtitle="Ask us anything. Your conversations with the Karibu TV team live here."
